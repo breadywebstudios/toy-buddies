@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 520" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- cloud silhouettes (flat bottom, puffy top) -->
+    <g id="big">
+      <circle cx="48" cy="82" r="36"/><circle cx="104" cy="58" r="46"/><circle cx="168" cy="40" r="56"/>
+      <circle cx="232" cy="60" r="44"/><circle cx="280" cy="86" r="30"/>
+      <rect x="12" y="74" width="296" height="44" rx="22"/>
+    </g>
+    <g id="mid">
+      <circle cx="34" cy="62" r="28"/><circle cx="78" cy="42" r="38"/><circle cx="132" cy="48" r="34"/>
+      <circle cx="174" cy="64" r="24"/>
+      <rect x="6" y="56" width="192" height="34" rx="17"/>
+    </g>
+    <g id="puff">
+      <circle cx="52" cy="26" r="22"/><circle cx="82" cy="44" r="22"/><circle cx="72" cy="78" r="22"/>
+      <circle cx="36" cy="76" r="22"/><circle cx="22" cy="46" r="22"/><circle cx="54" cy="54" r="28"/>
+    </g>
+    <!-- three-tone cloud: darker underside, white top rim, light body -->
+    <g id="cloud-big">
+      <use xlink:href="#big" fill="#7FAEEC" y="12"/>
+      <use xlink:href="#big" fill="#F4F9FF" x="-5" y="-9"/>
+      <use xlink:href="#big" fill="#B9D7FC"/>
+      <path d="M150 70a12 12 0 0 1 24 0M176 70a9 9 0 0 1 18 0M96 88q8-8 16 0q8-8 16 0" fill="none" stroke="#F4F9FF" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <g id="cloud-mid">
+      <use xlink:href="#mid" fill="#7FAEEC" y="10"/>
+      <use xlink:href="#mid" fill="#F4F9FF" x="-4" y="-8"/>
+      <use xlink:href="#mid" fill="#B9D7FC"/>
+      <path d="M70 66a10 10 0 0 1 20 0M92 66a8 8 0 0 1 16 0" fill="none" stroke="#F4F9FF" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <g id="cloud-puff">
+      <use xlink:href="#puff" fill="#7FAEEC" y="9"/>
+      <use xlink:href="#puff" fill="#F4F9FF" x="-4" y="-7"/>
+      <use xlink:href="#puff" fill="#B9D7FC"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="520" fill="#0A84DE"/>
+
+  <!-- clouds kept to the edges so the headline stays clear -->
+  <use xlink:href="#cloud-puff" transform="translate(70 40) scale(.9)"/>
+  <use xlink:href="#cloud-big"  transform="translate(200 120) scale(.85)"/>
+  <use xlink:href="#cloud-mid"  transform="translate(20 300) scale(1.1)"/>
+  <use xlink:href="#cloud-big"  transform="translate(1250 40) scale(.95)"/>
+  <use xlink:href="#cloud-mid"  transform="translate(1380 250) scale(1)"/>
+  <use xlink:href="#cloud-puff" transform="translate(1150 200) scale(.6)"/>
+  <use xlink:href="#cloud-big"  transform="translate(1060 380) scale(1.05)"/>
+  <use xlink:href="#cloud-mid"  transform="translate(300 400) scale(.95)"/>
+  <use xlink:href="#cloud-puff" transform="translate(640 30) scale(.5)"/>
+  <use xlink:href="#cloud-puff" transform="translate(880 450) scale(.55)"/>
+</svg>

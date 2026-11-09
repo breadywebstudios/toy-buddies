@@ -214,10 +214,13 @@
       const { error } = await sb.from("products").delete().eq("id", id); err(error);
     },
     async uploadImage(file) {
-      if (DEMO) return await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      // Shrink every photo before it's stored: max 1400 px, WebP, ~350 KB (see photo-editor.js "item" preset).
+      const { ensureOptimised } = await import("./photo-editor.js");
+      const blob = await ensureOptimised(file, "item");
+      if (DEMO) return await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+      const ext = blob.type === "image/webp" ? "webp" : "jpg";
       const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await sb.storage.from("figures").upload(path, file, { cacheControl: "31536000", upsert: false }); err(error);
+      const { error } = await sb.storage.from("figures").upload(path, blob, { contentType: blob.type, cacheControl: "31536000", upsert: false }); err(error);
       return sb.storage.from("figures").getPublicUrl(path).data.publicUrl;
     },
     async allAuctions() {

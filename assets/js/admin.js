@@ -153,7 +153,8 @@
       try {
         const file = f.file.files[0];
         if (file) {
-          if (file.size > 5 * 1024 * 1024) throw new Error("Photo is over 5 MB — please use a smaller one");
+          if (file.size > 30 * 1024 * 1024) throw new Error("Photo is over 30 MB — please use a smaller one");
+          btn.textContent = "Optimising photo…";
           uploaded = await admin.uploadImage(file);
         } else if (f.image_url.value.trim()) uploaded = f.image_url.value.trim();
         const num = (x) => (x.value === "" ? null : Number(x.value));

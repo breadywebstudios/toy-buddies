@@ -7,13 +7,14 @@
   <meta name="description" content="Bid on rare anime figures in live timed auctions or make an offer. Prices in AED.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Oswald:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <main>
-    <section class="hero" style="padding-bottom:60px">
+    <section class="hero">
       <div class="container">
+        <div class="eyebrow">Auctions &amp; offers</div>
         <h1>Bounty <span>Board</span></h1>
         <p>Bid on rare figures before the timer runs out, or name your price on figures open to offers. Sign in with your email to take part.</p>
         <div class="cta">
@@ -26,11 +27,11 @@
     <div class="container">
       <h2 class="section-title" id="auctions">Live auctions</h2>
       <p class="section-sub">Highest bid when the timer hits zero wins. A bid in the last 2 minutes adds 2 more minutes.</p>
-      <div class="auction-grid" id="liveGrid"></div>
+      <div class="poster-grid auction-posters" id="liveGrid"></div>
 
       <h2 class="section-title" id="offers">Make an offer</h2>
       <p class="section-sub">Send your best price. The seller reviews every offer and contacts you if it's accepted.</p>
-      <div class="grid" id="offerGrid"></div>
+      <div class="poster-grid" id="offerGrid"></div>
 
       <div id="myOffersWrap" class="hidden">
         <h2 class="section-title">My offers</h2>
@@ -39,7 +40,7 @@
 
       <div id="endedWrap" class="hidden">
         <h2 class="section-title">Recently ended</h2>
-        <div class="auction-grid" id="endedGrid"></div>
+        <div class="poster-grid auction-posters" id="endedGrid"></div>
       </div>
     </div>
   </main>

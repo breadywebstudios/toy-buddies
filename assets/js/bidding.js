@@ -52,21 +52,23 @@
         <input type="number" inputmode="decimal" min="${minBid(a)}" step="any" value="${minBid(a)}" aria-label="Your bid in ${esc(C.CURRENCY)}">
         <button class="btn" type="submit">Bid</button></form>`;
     }
-    return `<article class="auction" data-id="${esc(a.id)}">
-      <div class="img"><img loading="lazy" src="${esc(imgOf(p, i + 3))}" alt="${esc(p.name || "")}">
-        <span class="badge ${st === "live" ? "" : st === "upcoming" ? "gold" : "navy"}">${st === "live" ? "Live" : st === "upcoming" ? "Soon" : "Ended"}</span></div>
-      <div class="body">
-        <span class="series" style="color:var(--sea);font-weight:800;text-transform:uppercase;font-size:.75rem">${esc(p.series || "")}</span>
-        <h3>${esc(p.name || "Figure")}</h3>
-        <span class="timer" data-end="${esc(a.ends_at)}" data-start="${esc(a.starts_at)}">⏱ <b>—</b></span>
-        <div class="bid-now">
-          <div><div class="lbl">${top ? "Current bid" : "Starting bid"}</div><div class="amt">${money(top ? a.current_bid : a.start_price)}</div></div>
-          <div style="text-align:right"><div class="lbl">Bids</div><b>${a.bid_count || 0}</b></div>
-        </div>
-        ${st === "live" && !mine ? `<small style="color:var(--muted);font-weight:700">Min. next bid ${money(minBid(a))} · steps of ${money(a.min_increment)}</small>` : ""}
+    return `<article class="poster ${st === "ended" ? "sold" : ""}" data-id="${esc(a.id)}">
+      <div class="wanted">WANTED</div>
+      <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i + 3))}" alt="${esc(p.name || "")}">
+        <span class="badge ${st === "live" ? "" : st === "upcoming" ? "gold" : "navy"}">${st === "live" ? "Live auction" : st === "upcoming" ? "Coming soon" : "Ended"}</span>
+        ${st === "ended" && top ? `<span class="stamp">SOLD</span>` : ""}</div>
+      <div class="tag">${esc(p.series || "Collectible")}</div>
+      <div class="name">${esc(p.name || "Figure")}</div>
+      <div class="bounty">${money(top ? a.current_bid : a.start_price)}</div>
+      <small style="color:var(--muted);font-weight:700">${top ? `Current bid · ${a.bid_count} bid${a.bid_count === 1 ? "" : "s"}` : "Starting bid · no bids yet"}</small>
+      <div class="extra">
+        <span class="timer" data-end="${esc(a.ends_at)}" data-start="${esc(a.starts_at)}" style="align-self:center">⏱ <b>—</b></span>
+        ${st === "live" && !mine ? `<small style="color:var(--muted);font-weight:700;text-align:center">Next bid from ${money(minBid(a))} · steps of ${money(a.min_increment)}</small>` : ""}
         ${action}
         <details data-hist="${esc(a.id)}"><summary>Bid history</summary><ul class="history"><li>Loading…</li></ul></details>
-      </div></article>`;
+      </div>
+      <div class="fine"><i></i><b>${esc(C.STORE_NAME || "")}</b></div>
+    </article>`;
   }
 
   function wireAuctionCards() {
@@ -113,13 +115,16 @@
   async function loadOffers() {
     try { offerProducts = await api.offerProducts(); } catch (e) { toast(e.message, true); offerProducts = []; }
     $("#offerGrid").innerHTML = offerProducts.length ? offerProducts.map((p, i) => `
-      <article class="card" data-i="${i}" tabindex="0">
-        <div class="img"><img loading="lazy" src="${esc(imgOf(p, i))}" alt="${esc(p.name)}"><span class="badge orange">Open to offers</span></div>
-        <div class="body"><span class="series">${esc(p.series || "")}</span><h3>${esc(p.name)}</h3>
-          <span class="price">${p.price != null ? `<small>Listed</small> ${money(p.price)}` : `<small>Make your best offer</small>`}</span>
-          <button class="btn sm gold" style="margin-top:8px">Make offer</button></div>
+      <article class="poster" data-i="${i}" tabindex="0">
+        <div class="wanted">WANTED</div>
+        <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i))}" alt="${esc(p.name)}"><span class="badge orange">Open to offers</span></div>
+        <div class="tag">${esc(p.series || "Collectible")}</div>
+        <div class="name">${esc(p.name)}</div>
+        ${p.price != null ? `<div class="bounty">${money(p.price)}</div>` : `<div class="bounty muted">Name your price</div>`}
+        <button class="btn sm gold" style="margin-top:8px">Make an offer</button>
+        <div class="fine"><i></i><b>${esc(C.STORE_NAME || "")}</b></div>
       </article>`).join("") : `<div class="empty" style="grid-column:1/-1">No figures are open to offers right now.</div>`;
-    $$("#offerGrid .card").forEach((c) => (c.onclick = () => offerDialog(offerProducts[+c.dataset.i], +c.dataset.i)));
+    $$("#offerGrid .poster").forEach((c) => (c.onclick = () => offerDialog(offerProducts[+c.dataset.i], +c.dataset.i)));
     loadMyOffers();
   }
 

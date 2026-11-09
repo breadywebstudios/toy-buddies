@@ -42,7 +42,7 @@
       $("#meta").textContent = count ? `Showing ${start}–${start + rows.length - 1} of ${count} figures` : "";
       $("#grid").innerHTML = rows.length ? rows.map(card).join("") :
         `<div class="empty" style="grid-column:1/-1">No figures found. Try another search or category.</div>`;
-      $("#grid").querySelectorAll(".card").forEach((el) => (el.onclick = () => openDetail(lastRows[+el.dataset.i], +el.dataset.i)));
+      $("#grid").querySelectorAll(".poster").forEach((el) => (el.onclick = () => openDetail(lastRows[+el.dataset.i], +el.dataset.i)));
       renderPager(Math.ceil(count / size));
     } catch (e) {
       $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">Couldn't load the catalogue.</div>`;
@@ -52,16 +52,17 @@
 
   function card(p, i) {
     const out = p.stock <= 0;
-    return `<article class="card ${out ? "soldout" : ""}" data-i="${i}" tabindex="0">
-      <div class="img"><img loading="lazy" src="${esc(imgOf(p, i))}" alt="${esc(p.name)}">
-        ${out ? `<span class="badge navy">Sold out</span>` : p.condition?.startsWith("Pre") ? `<span class="badge gold">Pre-owned</span>` : ""}
+    return `<article class="poster ${out ? "sold" : ""}" data-i="${i}" tabindex="0">
+      <div class="wanted">WANTED</div>
+      <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i))}" alt="${esc(p.name)}">
+        ${out ? `<span class="stamp">SOLD</span>` : p.condition?.startsWith("Pre") ? `<span class="badge gold">Pre-owned</span>` : ""}
         ${p.accept_offers && !out ? `<span class="badge orange right">Offers</span>` : ""}
       </div>
-      <div class="body">
-        <span class="series">${esc(p.series || "")}</span>
-        <h3>${esc(p.name)}</h3>
-        <span class="price">${p.price != null ? money(p.price) : `<small>Price on request</small>`}</span>
-      </div></article>`;
+      <div class="tag">${esc(p.series || "Collectible")}</div>
+      <div class="name">${esc(p.name)}</div>
+      ${p.price != null ? `<div class="bounty">${money(p.price)}</div>` : `<div class="bounty muted">Price on request</div>`}
+      <div class="fine"><i></i><b>${esc(C.STORE_NAME || "")}</b></div>
+    </article>`;
   }
 
   function renderPager(pages) {
@@ -107,7 +108,7 @@
   $("#q").addEventListener("input", debounce((e) => { state.q = e.target.value.trim(); state.page = 1; load(); }, 300));
   $("#cat").onchange = (e) => { state.cat = e.target.value; state.page = 1; renderChips(); load(); };
   $("#sort").onchange = (e) => { state.sort = e.target.value; state.page = 1; load(); };
-  $("#grid").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.classList.contains("card")) e.target.click(); });
+  $("#grid").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.classList.contains("poster")) e.target.click(); });
 
   init();
 })();

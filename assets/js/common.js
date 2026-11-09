@@ -20,14 +20,13 @@
   }
 
   // Placeholder art when a figure has no photo (also used by demo data)
-  const PALETTE = [["#D3202A", "#F5C518"], ["#14365F", "#5CC3E8"], ["#1F7FB5", "#FBF3DF"], ["#2E8B3E", "#F5C518"], ["#F28C28", "#14365F"], ["#C9A46A", "#14365F"]];
+  const PALETTE = [["#FBE3E1", "#D3202A"], ["#DDEBF7", "#14365F"], ["#FCEFC2", "#9E1219"], ["#DFF1E3", "#2E8B3E"], ["#FDE6D2", "#E07A1F"], ["#E3F3FB", "#1F7FB5"]];
   function placeholder(name = "?", i = 0) {
     const [bg, fg] = PALETTE[Math.abs(i) % PALETTE.length];
     const initials = esc(name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase());
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect width='300' height='300' fill='${bg}'/>
       <circle cx='150' cy='300' r='150' fill='${fg}' opacity='.18'/>
-      <g fill='${fg}' opacity='.9'><circle cx='150' cy='92' r='34'/><path d='M104 140 h92 l18 80 h-26 l-6 60 h-64 l-6-60 h-26z'/></g>
-      <text x='150' y='44' text-anchor='middle' font-family='Arial Black,Arial' font-size='34' fill='${fg}' opacity='.85'>${initials}</text></svg>`;
+      <g fill='${fg}' opacity='.9'><circle cx='150' cy='92' r='34'/><path d='M104 140 h92 l18 80 h-26 l-6 60 h-64 l-6-60 h-26z'/></g></svg>`;
     return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
   }
   const imgOf = (p, i = 0) => p?.image_url || placeholder(p?.name, i);

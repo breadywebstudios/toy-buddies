@@ -1,7 +1,7 @@
 // Fill these in from Supabase → Project Settings → API.
 // While they are empty the site runs in DEMO mode with sample figures.
 window.APP_CONFIG = {
-  SUPABASE_URL: "",
+  SUPABASE_URL: "https://zqdiqcbsybalxsjqxjsg.supabase.co",
   SUPABASE_ANON_KEY: "",
   STORE_NAME: "Toy Buddies",
   STORE_TAGLINE: "Anime action figures & collectibles — Dubai, UAE",

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div id="gate" class="panel hidden" style="max-width:420px;margin:40px auto;text-align:center">
+      <h2>Captain's Quarters</h2>
+      <p id="gateMsg">Sign in with the admin account to manage the store.</p>
+      <button class="btn" id="gateBtn">Sign in</button>
+    </div>
+
+    <div id="app" class="hidden">
+      <div class="admin-layout">
+        <aside class="side" id="side">
+          <button data-tab="dash" class="active">📊 Dashboard</button>
+          <button data-tab="cats">🗂️ Categories</button>
+          <button data-tab="prods">🧸 Figures</button>
+          <button data-tab="aucs">⏱️ Auctions</button>
+          <button data-tab="offs">💬 Offers</button>
+        </aside>
+        <section>
+          <!-- Dashboard -->
+          <div class="panel" data-pane="dash">
+            <h2>Dashboard</h2>
+            <div class="stats" id="stats"></div>
+            <p style="color:var(--muted);font-weight:600;margin:0">Tip: open <b>Categories</b> first, then add figures one by one or import a CSV of hundreds at once under <b>Figures</b>.</p>
+          </div>
+
+          <!-- Categories -->
+          <div class="panel hidden" data-pane="cats">
+            <h2>Categories</h2>
+            <form id="catForm" class="form-grid" style="margin-bottom:16px">
+              <input type="hidden" name="id">
+              <div><label>Name</label><input name="name" required maxlength="60" placeholder="e.g. Scale Figures"></div>
+              <div><label>Order</label><input name="sort_order" type="number" value="0"></div>
+              <div class="full"><label>Description (optional)</label><input name="description" maxlength="200"></div>
+              <div class="full actions"><button class="btn" type="submit" id="catSave">Add category</button><button class="btn ghost hidden" type="button" id="catCancel">Cancel edit</button></div>
+            </form>
+            <div class="table-wrap"><table><thead><tr><th>Order</th><th>Name</th><th>Figures</th><th></th></tr></thead><tbody id="catRows"></tbody></table></div>
+          </div>
+
+          <!-- Figures -->
+          <div class="panel hidden" data-pane="prods">
+            <h2>Figures</h2>
+            <div class="actions" style="margin-bottom:12px">
+              <button class="btn" id="newProd">+ Add figure</button>
+              <label class="btn gold" style="margin:0">⬆ Import CSV<input type="file" id="csvFile" accept=".csv,text/csv" hidden></label>
+              <button class="btn ghost" id="csvTemplate">Download CSV template</button>
+            </div>
+            <div class="row" style="margin-bottom:12px">
+              <input id="pq" type="search" placeholder="Search figures…">
+              <select id="pcat"><option value="">All categories</option></select>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th></th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead><tbody id="prodRows"></tbody></table></div>
+            <div class="pager" id="ppager"></div>
+          </div>
+
+          <!-- Auctions -->
+          <div class="panel hidden" data-pane="aucs">
+            <h2>Auctions</h2>
+            <form id="aucForm" class="form-grid" style="margin-bottom:16px">
+              <div class="full"><label>Figure</label><input name="product" list="prodList" required placeholder="Start typing a figure name…"><datalist id="prodList"></datalist></div>
+              <div><label>Starting price (AED)</label><input name="start_price" type="number" min="0" step="any" required></div>
+              <div><label>Min. bid step (AED)</label><input name="min_increment" type="number" min="1" step="any" value="10" required></div>
+              <div><label>Starts</label><input name="starts_at" type="datetime-local" required></div>
+              <div><label>Ends</label><input name="ends_at" type="datetime-local" required></div>
+              <div class="full"><button class="btn" type="submit">Start auction</button></div>
+            </form>
+            <div class="table-wrap"><table><thead><tr><th>Figure</th><th>Status</th><th>Ends</th><th>Top bid</th><th>Bids</th><th>Leader / winner</th><th></th></tr></thead><tbody id="aucRows"></tbody></table></div>
+          </div>
+
+          <!-- Offers -->
+          <div class="panel hidden" data-pane="offs">
+            <h2>Offers</h2>
+            <div class="row" style="margin-bottom:12px;max-width:260px"><select id="ofilter"><option value="pending">Pending</option><option value="">All</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option></select></div>
+            <div class="table-wrap"><table><thead><tr><th>Figure</th><th>Offer</th><th>From</th><th>Message</th><th>Status</th><th></th></tr></thead><tbody id="offRows"></tbody></table></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

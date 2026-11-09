@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toy Buddies — Anime Figures in Dubai</title>
+  <meta name="description" content="Browse hundreds of anime action figures and collectibles. Prices in AED, based in Dubai, UAE.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Set sail for your next <span>figure</span></h1>
+        <p id="tagline">Hundreds of anime action figures &amp; collectibles — browse the catalogue, bid on rare finds, or make an offer.</p>
+        <div class="cta">
+          <a class="btn gold" href="#catalog">Browse catalogue</a>
+          <a class="btn" href="bidding.html">Live auctions</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="container" id="catalog">
+      <div class="toolbar">
+        <input class="search" id="q" type="search" placeholder="Search figure, anime or brand…" aria-label="Search">
+        <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+        <select id="sort" aria-label="Sort">
+          <option value="new">Newest first</option>
+          <option value="price_asc">Price: low to high</option>
+          <option value="price_desc">Price: high to low</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+      <div class="chips" id="chips"></div>
+      <p class="result-meta" id="meta"></p>
+      <div class="grid" id="grid"></div>
+      <div class="pager" id="pager"></div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/catalog.js"></script>
+</body>
+</html>

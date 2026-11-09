@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auctions &amp; Offers</title>
+  <meta name="description" content="Bid on rare anime figures in live timed auctions or make an offer. Prices in AED.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <main>
+    <section class="hero" style="padding-bottom:60px">
+      <div class="container">
+        <h1>Bounty <span>Board</span></h1>
+        <p>Bid on rare figures before the timer runs out, or name your price on figures open to offers. Sign in with your email to take part.</p>
+        <div class="cta">
+          <a class="btn gold" href="#auctions">Live auctions</a>
+          <a class="btn" href="#offers">Make an offer</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <h2 class="section-title" id="auctions">Live auctions</h2>
+      <p class="section-sub">Highest bid when the timer hits zero wins. A bid in the last 2 minutes adds 2 more minutes.</p>
+      <div class="auction-grid" id="liveGrid"></div>
+
+      <h2 class="section-title" id="offers">Make an offer</h2>
+      <p class="section-sub">Send your best price. The seller reviews every offer and contacts you if it's accepted.</p>
+      <div class="grid" id="offerGrid"></div>
+
+      <div id="myOffersWrap" class="hidden">
+        <h2 class="section-title">My offers</h2>
+        <div class="panel table-wrap"><table><thead><tr><th>Figure</th><th>Offer</th><th>Status</th><th>Sent</th><th></th></tr></thead><tbody id="myOffers"></tbody></table></div>
+      </div>
+
+      <div id="endedWrap" class="hidden">
+        <h2 class="section-title">Recently ended</h2>
+        <div class="auction-grid" id="endedGrid"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/bidding.js"></script>
+</body>
+</html>

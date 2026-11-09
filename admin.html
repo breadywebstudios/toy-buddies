@@ -26,6 +26,7 @@
           <button data-tab="prods">🧸 Figures</button>
           <button data-tab="aucs">⏱️ Auctions</button>
           <button data-tab="offs">💬 Offers</button>
+          <button data-tab="users">👥 Users</button>
         </aside>
         <section>
           <!-- Dashboard -->
@@ -83,6 +84,17 @@
             <h2>Offers</h2>
             <div class="row" style="margin-bottom:12px;max-width:260px"><select id="ofilter"><option value="pending">Pending</option><option value="">All</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option></select></div>
             <div class="table-wrap"><table><thead><tr><th>Figure</th><th>Offer</th><th>From</th><th>Message</th><th>Status</th><th></th></tr></thead><tbody id="offRows"></tbody></table></div>
+          </div>
+
+          <!-- Users -->
+          <div class="panel hidden" data-pane="users">
+            <h2>Users</h2>
+            <p style="color:var(--muted);font-weight:600;margin:-4px 0 12px">Everyone who signed up on the site. Blocked users can still browse but can't bid or make offers.</p>
+            <div class="row" style="margin-bottom:12px">
+              <input id="uq" type="search" placeholder="Search name, email or mobile…">
+              <select id="ufilter"><option value="">All users</option><option value="admin">Admins</option><option value="blocked">Blocked</option><option value="active">Bidders &amp; offer makers</option></select>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Contact</th><th>Joined</th><th>Bids</th><th>Offers</th><th>Won</th><th>Role</th><th></th></tr></thead><tbody id="userRows"></tbody></table></div>
           </div>
         </section>
       </div>

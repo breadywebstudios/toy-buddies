@@ -13,11 +13,15 @@
     const ok = u && (await auth.isAdmin());
     $("#gate").classList.toggle("hidden", !!ok);
     $("#app").classList.toggle("hidden", !ok);
-    if (!u) { $("#gateMsg").textContent = DEMO ? "Demo mode: sign in with any email to explore the admin." : "Sign in with the admin account to manage the store."; $("#gateBtn").classList.remove("hidden"); }
-    else if (!ok) { $("#gateMsg").innerHTML = `Signed in as <b>${esc(u.email)}</b>, but this account isn't an admin yet. Add it in Supabase (see README).`; $("#gateBtn").classList.add("hidden"); }
+    if (!u) { $("#gateMsg").textContent = DEMO ? "Demo mode: sign in with any email to explore the admin." : "Sign in with your admin account to manage the catalogue and users."; $("#gateBtn").classList.remove("hidden"); $("#gateOut")?.remove(); }
+    else if (!ok) {
+      $("#gateMsg").innerHTML = `Signed in as <b>${esc(u.email)}</b>, but this account doesn't have admin access yet.<br><small>An existing admin can grant it under <b>Users</b>, or your web developer can activate it.</small>`;
+      $("#gateBtn").classList.add("hidden");
+      if (!$("#gateOut")) { const b = document.createElement("button"); b.id = "gateOut"; b.className = "btn ghost"; b.textContent = "Sign in with another account"; b.onclick = async () => { await auth.signOut(); App.refreshAuthSlot(); gate(); }; $("#gate").appendChild(b); }
+    } else { $("#gateOut")?.remove(); }
     if (ok) { await loadCats(); showTab(location.hash.slice(1) || "dash"); }
   }
-  $("#gateBtn").onclick = () => openAuth("in", gate);
+  $("#gateBtn").onclick = () => openAuth("in", gate, { title: "Admin sign in", note: "Use the email and password of the store admin account." });
   document.addEventListener("auth-changed", gate);
 
   // ---------- Tabs ----------
@@ -26,7 +30,7 @@
     $$("#side button").forEach((b) => b.classList.toggle("active", b.dataset.tab === t));
     $$("[data-pane]").forEach((p) => p.classList.toggle("hidden", p.dataset.pane !== t));
     history.replaceState(null, "", "#" + t);
-    ({ dash: loadDash, cats: renderCats, prods: loadProds, aucs: loadAucs, offs: loadOffs })[t]();
+    ({ dash: loadDash, cats: renderCats, prods: loadProds, aucs: loadAucs, offs: loadOffs, users: loadUsers })[t]();
   }
   $$("#side button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
 
@@ -291,6 +295,42 @@
     try { await admin.setOfferStatus(id, status); toast(`Offer ${status}`); loadOffs(); } catch (e) { toast(e.message, true); }
   }
   $("#ofilter").onchange = loadOffs;
+
+  // ---------- Users ----------
+  let users = [], me = null;
+  async function loadUsers() {
+    try { me = await auth.user(); users = await admin.users(); renderUsers(); } catch (e) { toast(e.message, true); }
+  }
+  function renderUsers() {
+    const q = ($("#uq").value || "").toLowerCase(), f = $("#ufilter").value;
+    const rows = users.filter((u) => (!q || [u.display_name, u.email, u.phone].join(" ").toLowerCase().includes(q))
+      && (!f || (f === "admin" ? u.is_admin : f === "blocked" ? u.is_blocked : u.bids + u.offers > 0)));
+    $("#userRows").innerHTML = rows.length ? rows.map((u) => {
+      const self = me && u.id === me.id;
+      const wa = u.phone ? `https://wa.me/${u.phone.replace(/\D/g, "").replace(/^0/, "971")}` : "";
+      return `<tr>
+        <td><b>${esc(u.display_name || "—")}</b>${self ? ` <span class="pill gold">You</span>` : ""}</td>
+        <td><small>${esc(u.email || "")}${u.phone ? `<br><a href="${esc(wa)}" target="_blank" rel="noopener">${esc(u.phone)}</a>` : ""}</small></td>
+        <td>${u.created_at ? new Date(u.created_at).toLocaleDateString("en-AE") : "—"}</td>
+        <td>${u.bids}</td><td>${u.offers}</td><td>${u.wins}</td>
+        <td>${u.is_admin ? `<span class="pill red">Admin</span>` : u.is_blocked ? `<span class="pill no">Blocked</span>` : `<span class="pill ok">Buyer</span>`}</td>
+        <td class="actions">${self ? "" : `
+          ${u.is_admin ? `<button class="btn sm ghost" data-ua="${esc(u.id)}" data-on="0">Remove admin</button>` : `<button class="btn sm navy" data-ua="${esc(u.id)}" data-on="1">Make admin</button>`}
+          ${u.is_admin ? "" : u.is_blocked ? `<button class="btn sm gold" data-ub="${esc(u.id)}" data-on="0">Unblock</button>` : `<button class="btn sm ghost" data-ub="${esc(u.id)}" data-on="1">Block</button>`}`}</td></tr>`;
+    }).join("") : `<tr><td colspan="8" class="empty">No users found.</td></tr>`;
+    $$("[data-ua]").forEach((b) => (b.onclick = async () => {
+      const u = users.find((x) => x.id === b.dataset.ua), on = b.dataset.on === "1";
+      if (!confirm(on ? `Give ${u.email} full admin access?\nThey'll be able to manage figures, auctions, offers and users.` : `Remove admin access from ${u.email}?`)) return;
+      try { await admin.setAdmin(u.id, on); toast(on ? "Admin access granted" : "Admin access removed"); loadUsers(); } catch (e) { toast(e.message, true); }
+    }));
+    $$("[data-ub]").forEach((b) => (b.onclick = async () => {
+      const u = users.find((x) => x.id === b.dataset.ub), on = b.dataset.on === "1";
+      if (!confirm(on ? `Block ${u.email}? They won't be able to bid or make offers.` : `Unblock ${u.email}?`)) return;
+      try { await admin.setBlocked(u.id, on); toast(on ? "User blocked" : "User unblocked"); loadUsers(); } catch (e) { toast(e.message, true); }
+    }));
+  }
+  $("#uq").addEventListener("input", debounce(renderUsers, 150));
+  $("#ufilter").onchange = renderUsers;
 
   gate();
 })();

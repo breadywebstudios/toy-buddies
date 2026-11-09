@@ -6,13 +6,13 @@ Static site (HTML/CSS/JS) on Vercel with a Supabase backend. No build step.
 |---|---|
 | `index.html` | Catalogue — search, category chips, sort, 24 per page (handles hundreds of figures) |
 | `bidding.html` | **Timed auctions** (live countdown, min bid step, anti-snipe +2 min) and **Make an offer** on figures marked "open to offers". Email sign-up/login required. |
-| `admin.html` | Admin only — categories, figures (add/edit/photo upload/CSV import), auctions (start, extend, cancel, see winner contact), offers (accept/reject, WhatsApp the buyer) |
+| `admin.html` | Admin only — users (make admin, block/unblock), categories, figures (add/edit/photo upload/CSV import), auctions (start, extend, cancel, see winner contact), offers (accept/reject, WhatsApp the buyer) |
 
 Prices are in AED. Colours follow a One Piece–inspired palette (`assets/css/style.css` → `:root`).
 
 ## Setup
 
-1. **Supabase** → new project → SQL Editor → run `supabase/schema.sql`.
+1. **Supabase** → new project → SQL Editor → run `supabase/schema.sql`, then `supabase/002_users_admin.sql`.
 2. **Auth** → Providers → Email enabled. Under URL Configuration set Site URL to the Vercel URL.
 3. Copy **Project URL** and **anon/publishable key** into `config.js` (also set `STORE_NAME`, `WHATSAPP`).
 4. Deploy the folder to Vercel (framework: Other, no build command).

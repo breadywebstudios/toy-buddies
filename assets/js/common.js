@@ -245,6 +245,33 @@
       if (DEMO) { byId(D.offers, id).status = status; return; }
       const { error } = await sb.from("offers").update({ status }).eq("id", id); err(error);
     },
+    async users() {
+      if (DEMO) {
+        const admins = new Set(["demo-user"]);
+        return D.profiles.map((u) => ({ ...u, is_admin: admins.has(u.id), is_blocked: !!u.is_blocked,
+          bids: D.bids.filter((b) => b.user_id === u.id).length, offers: D.offers.filter((o) => o.user_id === u.id).length,
+          wins: D.auctions.filter((a) => a.current_bidder === u.id && new Date(a.ends_at) < Date.now()).length }));
+      }
+      const [p, a, b, o, w] = await Promise.all([
+        sb.from("profiles").select("*").order("created_at", { ascending: false }),
+        sb.from("admins").select("user_id"),
+        sb.from("bids").select("user_id"),
+        sb.from("offers").select("user_id"),
+        sb.from("auctions").select("current_bidder").lt("ends_at", new Date().toISOString()).eq("cancelled", false),
+      ]);
+      [p, a, b, o, w].forEach((r) => err(r.error));
+      const count = (rows, key) => rows.reduce((m, r) => ((m[r[key]] = (m[r[key]] || 0) + 1), m), {});
+      const admins = new Set(a.data.map((x) => x.user_id)), bc = count(b.data, "user_id"), oc = count(o.data, "user_id"), wc = count(w.data, "current_bidder");
+      return p.data.map((u) => ({ ...u, is_admin: admins.has(u.id), bids: bc[u.id] || 0, offers: oc[u.id] || 0, wins: wc[u.id] || 0 }));
+    },
+    async setBlocked(id, is_blocked) {
+      if (DEMO) { byId(D.profiles, id).is_blocked = is_blocked; return; }
+      const { error } = await sb.from("profiles").update({ is_blocked }).eq("id", id); err(error);
+    },
+    async setAdmin(id, on) {
+      if (DEMO) return;
+      const { error } = on ? await sb.from("admins").insert({ user_id: id }) : await sb.from("admins").delete().eq("user_id", id); err(error);
+    },
     async productOptions() {
       if (DEMO) return D.products.map((p) => ({ id: p.id, name: p.name }));
       const { data, error } = await sb.from("products").select("id,name").order("name"); err(error); return data;
@@ -305,9 +332,9 @@
   function escClose(e) { if (e.key === "Escape") closeModal(); }
   function closeModal() { $("#modal")?.remove(); document.removeEventListener("keydown", escClose); }
 
-  function openAuth(mode = "in", onDone) {
+  function openAuth(mode = "in", onDone, opts = {}) {
     const m = openModal(`<div class="modal-pad">
-      <h2>Ahoy! Sign in to bid</h2>
+      <h2>${esc(opts.title || "Ahoy! Sign in to bid")}</h2>${opts.note ? `<p style="margin:-4px 0 12px;color:var(--muted);font-weight:600">${esc(opts.note)}</p>` : ""}
       <div class="tabs"><button class="btn sm" data-t="in">Sign in</button><button class="btn sm ghost" data-t="up">Create account</button></div>
       <form id="authForm">
         <div class="field up-only"><label>Name</label><input name="name" autocomplete="name"></div>

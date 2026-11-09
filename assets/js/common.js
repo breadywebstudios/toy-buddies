@@ -247,7 +247,7 @@
     },
     async users() {
       if (DEMO) {
-        const admins = new Set(["demo-user"]);
+        const admins = D.adminIds || (D.adminIds = new Set(["demo-user"]));
         return D.profiles.map((u) => ({ ...u, is_admin: admins.has(u.id), is_blocked: !!u.is_blocked,
           bids: D.bids.filter((b) => b.user_id === u.id).length, offers: D.offers.filter((o) => o.user_id === u.id).length,
           wins: D.auctions.filter((a) => a.current_bidder === u.id && new Date(a.ends_at) < Date.now()).length }));
@@ -268,8 +268,28 @@
       if (DEMO) { byId(D.profiles, id).is_blocked = is_blocked; return; }
       const { error } = await sb.from("profiles").update({ is_blocked }).eq("id", id); err(error);
     },
-    async setAdmin(id, on) {
+    async hasAdmins() {
+      if (DEMO) return true;
+      const { data, error } = await sb.rpc("has_admins"); err(error); return !!data;
+    },
+    async claimFirstAdmin() {
       if (DEMO) return;
+      const { error } = await sb.rpc("claim_first_admin"); err(error);
+    },
+    async addAdminByEmail(email) {
+      if (DEMO) { const u = D.profiles.find((x) => x.email === email); if (u) { D.adminIds = D.adminIds || new Set(["demo-user"]); D.adminIds.add(u.id); return "added"; } (D.invites = D.invites || []).push({ email, created_at: new Date().toISOString() }); return "invited"; }
+      const { data, error } = await sb.rpc("add_admin_by_email", { p_email: email }); err(error); return data;
+    },
+    async invites() {
+      if (DEMO) return D.invites || [];
+      const { data, error } = await sb.from("admin_invites").select("*").order("created_at", { ascending: false }); err(error); return data;
+    },
+    async cancelInvite(email) {
+      if (DEMO) { D.invites = (D.invites || []).filter((i) => i.email !== email); return; }
+      const { error } = await sb.from("admin_invites").delete().eq("email", email); err(error);
+    },
+    async setAdmin(id, on) {
+      if (DEMO) { D.adminIds = D.adminIds || new Set(["demo-user"]); on ? D.adminIds.add(id) : D.adminIds.delete(id); return; }
       const { error } = on ? await sb.from("admins").insert({ user_id: id }) : await sb.from("admins").delete().eq("user_id", id); err(error);
     },
     async productOptions() {

@@ -106,7 +106,79 @@ revoke all on function public.place_bid(uuid, numeric) from public, anon;
 grant execute on function public.place_bid(uuid, numeric) to authenticated;
 
 -- =====================================================================
--- Make the first admin (change the email, then run this line):
---   insert into public.admins (user_id)
---   select id from auth.users where email = 'ADMIN_EMAIL' on conflict do nothing;
+-- Admin management from the website (no SQL needed after this file)
 -- =====================================================================
+
+-- Pending admin invites for people who haven't signed up yet
+create table if not exists public.admin_invites (
+  email      text primary key,
+  invited_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+alter table public.admin_invites enable row level security;
+drop policy if exists admin_invites_admin on public.admin_invites;
+create policy admin_invites_admin on public.admin_invites for all
+  using (public.is_admin()) with check (public.is_admin());
+
+-- Are there any admins yet? (lets the admin page offer "claim owner access")
+create or replace function public.has_admins()
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.admins);
+$$;
+grant execute on function public.has_admins() to anon, authenticated;
+
+-- The very first signed-in user can claim admin, only while there are no admins
+create or replace function public.claim_first_admin()
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'Please sign in first'; end if;
+  lock table public.admins in exclusive mode;
+  if exists (select 1 from public.admins) then
+    raise exception 'This store already has an admin. Ask them to add you.';
+  end if;
+  insert into public.admins (user_id) values (auth.uid());
+  return true;
+end $$;
+revoke all on function public.claim_first_admin() from public, anon;
+grant execute on function public.claim_first_admin() to authenticated;
+
+-- Add an admin by email: instant if they have an account, otherwise saved as an invite
+create or replace function public.add_admin_by_email(p_email text)
+returns text language plpgsql security definer set search_path = public as $$
+declare v_id uuid; v_email text := lower(trim(p_email));
+begin
+  if not public.is_admin() then raise exception 'Only admins can add admins'; end if;
+  if v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then raise exception 'Please enter a valid email'; end if;
+  select id into v_id from auth.users where lower(email) = v_email;
+  if v_id is not null then
+    insert into public.admins (user_id) values (v_id) on conflict do nothing;
+    delete from public.admin_invites where email = v_email;
+    return 'added';
+  end if;
+  insert into public.admin_invites (email, invited_by) values (v_email, auth.uid())
+  on conflict (email) do nothing;
+  return 'invited';
+end $$;
+revoke all on function public.add_admin_by_email(text) from public, anon;
+grant execute on function public.add_admin_by_email(text) to authenticated;
+
+-- When an invited person signs up, they become admin automatically
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, email, display_name, phone)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
+    new.raw_user_meta_data->>'phone'
+  )
+  on conflict (id) do nothing;
+  if exists (select 1 from public.admin_invites where email = lower(new.email)) then
+    insert into public.admins (user_id) values (new.id) on conflict do nothing;
+    delete from public.admin_invites where email = lower(new.email);
+  end if;
+  return new;
+end $$;
+
+-- That's it — after running this file, add admins from Admin → Users.

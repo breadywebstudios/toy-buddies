@@ -89,7 +89,16 @@
           <!-- Users -->
           <div class="panel hidden" data-pane="users">
             <h2>Users</h2>
-            <p style="color:var(--muted);font-weight:600;margin:-4px 0 12px">Everyone who signed up on the site. Blocked users can still browse but can't bid or make offers.</p>
+            <form id="addAdminForm" class="notice" style="margin:0 0 16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+              <div style="flex:1;min-width:220px"><label for="adminEmail">Add a site admin</label><input id="adminEmail" type="email" required placeholder="their-email@example.com" autocomplete="off"></div>
+              <button class="btn" type="submit">Add admin</button>
+              <small style="flex-basis:100%;font-weight:600">If they already have an account they become admin straight away. If not, they become admin automatically when they sign up with this email.</small>
+            </form>
+            <div id="invitesWrap" class="hidden" style="margin-bottom:16px">
+              <label>Waiting to sign up</label>
+              <div class="table-wrap"><table><tbody id="inviteRows"></tbody></table></div>
+            </div>
+            <p style="color:var(--muted);font-weight:600;margin:0 0 12px">Everyone who signed up on the site. Blocked users can still browse but can't bid or make offers.</p>
             <div class="row" style="margin-bottom:12px">
               <input id="uq" type="search" placeholder="Search name, email or mobile…">
               <select id="ufilter"><option value="">All users</option><option value="admin">Admins</option><option value="blocked">Blocked</option><option value="active">Bidders &amp; offer makers</option></select>

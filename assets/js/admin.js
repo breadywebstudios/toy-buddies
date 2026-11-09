@@ -15,10 +15,19 @@
     $("#app").classList.toggle("hidden", !ok);
     if (!u) { $("#gateMsg").textContent = DEMO ? "Demo mode: sign in with any email to explore the admin." : "Sign in with your admin account to manage the catalogue and users."; $("#gateBtn").classList.remove("hidden"); $("#gateOut")?.remove(); }
     else if (!ok) {
-      $("#gateMsg").innerHTML = `Signed in as <b>${esc(u.email)}</b>, but this account doesn't have admin access yet.<br><small>An existing admin can grant it under <b>Users</b>, or your web developer can activate it.</small>`;
+      const first = !(await admin.hasAdmins().catch(() => true));
+      $("#gateMsg").innerHTML = first
+        ? `Signed in as <b>${esc(u.email)}</b>.<br>This store has no admin yet — claim owner access to start managing it.`
+        : `Signed in as <b>${esc(u.email)}</b>, but this account doesn't have admin access yet.<br><small>Ask an existing admin to add your email under <b>Users → Add a site admin</b>.</small>`;
+      if (first && !$("#claimBtn")) {
+        const c = document.createElement("button"); c.id = "claimBtn"; c.className = "btn"; c.textContent = "Claim owner access";
+        c.onclick = async () => { c.disabled = true; try { await admin.claimFirstAdmin(); toast("You're now the store admin"); c.remove(); gate(); } catch (e) { toast(e.message, true); c.disabled = false; } };
+        $("#gate").appendChild(c);
+      }
       $("#gateBtn").classList.add("hidden");
       if (!$("#gateOut")) { const b = document.createElement("button"); b.id = "gateOut"; b.className = "btn ghost"; b.textContent = "Sign in with another account"; b.onclick = async () => { await auth.signOut(); App.refreshAuthSlot(); gate(); }; $("#gate").appendChild(b); }
     } else { $("#gateOut")?.remove(); }
+    if (ok || !u) $("#claimBtn")?.remove();
     if (ok) { await loadCats(); showTab(location.hash.slice(1) || "dash"); }
   }
   $("#gateBtn").onclick = () => openAuth("in", gate, { title: "Admin sign in", note: "Use the email and password of the store admin account." });
@@ -300,7 +309,28 @@
   let users = [], me = null;
   async function loadUsers() {
     try { me = await auth.user(); users = await admin.users(); renderUsers(); } catch (e) { toast(e.message, true); }
+    loadInvites();
   }
+  async function loadInvites() {
+    const inv = await admin.invites().catch(() => []);
+    $("#invitesWrap").classList.toggle("hidden", !inv.length);
+    $("#inviteRows").innerHTML = inv.map((i) => `<tr><td><b>${esc(i.email)}</b></td><td><small>Invited ${new Date(i.created_at).toLocaleDateString("en-AE")}</small></td>
+      <td class="actions"><button class="btn sm ghost" data-ci="${esc(i.email)}">Cancel</button></td></tr>`).join("");
+    $$("[data-ci]").forEach((b) => (b.onclick = async () => {
+      if (!confirm(`Cancel the admin invite for ${b.dataset.ci}?`)) return;
+      try { await admin.cancelInvite(b.dataset.ci); toast("Invite cancelled"); loadInvites(); } catch (e) { toast(e.message, true); }
+    }));
+  }
+  $("#addAdminForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const email = $("#adminEmail").value.trim().toLowerCase();
+    if (!confirm(`Give ${email} full admin access?\nThey'll be able to manage figures, auctions, offers and users.`)) return;
+    try {
+      const r = await admin.addAdminByEmail(email);
+      toast(r === "added" ? `${email} is now an admin` : `Saved — ${email} becomes admin when they sign up`);
+      $("#adminEmail").value = ""; loadUsers();
+    } catch (x) { toast(x.message.replace(/^.*?:\s*/, ""), true); }
+  };
   function renderUsers() {
     const q = ($("#uq").value || "").toLowerCase(), f = $("#ufilter").value;
     const rows = users.filter((u) => (!q || [u.display_name, u.email, u.phone].join(" ").toLowerCase().includes(q))

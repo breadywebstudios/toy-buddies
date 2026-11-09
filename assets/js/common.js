@@ -322,7 +322,7 @@
     const foot = document.createElement("footer");
     foot.className = "site-footer";
     foot.innerHTML = `<div class="container">
-      <span>© ${new Date().getFullYear()} ${esc(C.STORE_NAME || "")} · ${esc(C.STORE_TAGLINE || "")}</span>
+      <span>© ${new Date().getFullYear()} ${esc(C.STORE_NAME || "")} · ${esc(C.STORE_TAGLINE || "")} · <a class="admin-link" href="admin.html" rel="nofollow">Admin</a></span>
       <span>Powered by <a href="https://breadywebstudio.vercel.app" target="_blank" rel="noopener">Bready Web Studios</a></span></div>`;
     document.body.appendChild(foot);
     refreshAuthSlot();

@@ -332,6 +332,8 @@ details summary{cursor:pointer; font-weight:900; color:var(--navy-2); font-size:
 }
 .site-footer .container{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center}
 .site-footer a{color:var(--straw); text-decoration:none; font-weight:900}
+.site-footer a.admin-link{color:inherit; font-weight:600; opacity:.55; transition:opacity .15s}
+.site-footer a.admin-link:hover, .site-footer a.admin-link:focus-visible{opacity:1; text-decoration:underline}
 
 /* ===== Admin ===== */
 .admin-layout{display:grid; grid-template-columns:220px 1fr; gap:22px; margin-top:24px}

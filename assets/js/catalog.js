@@ -53,7 +53,7 @@
   function card(p, i) {
     const out = p.stock <= 0;
     return `<article class="poster ${out ? "sold" : ""}" data-i="${i}" tabindex="0">
-      <div class="wanted">WANTED</div>
+      <div class="wanted">フィギュア</div>
       <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i))}" alt="${esc(p.name)}">
         ${out ? `<span class="stamp">SOLD</span>` : p.condition?.startsWith("Pre") ? `<span class="badge gold">Pre-owned</span>` : ""}
         ${p.accept_offers && !out ? `<span class="badge orange right">Offers</span>` : ""}

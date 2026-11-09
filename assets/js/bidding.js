@@ -53,7 +53,7 @@
         <button class="btn" type="submit">Bid</button></form>`;
     }
     return `<article class="poster ${st === "ended" ? "sold" : ""}" data-id="${esc(a.id)}">
-      <div class="wanted">WANTED</div>
+      <div class="wanted">オークション</div>
       <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i + 3))}" alt="${esc(p.name || "")}">
         <span class="badge ${st === "live" ? "" : st === "upcoming" ? "gold" : "navy"}">${st === "live" ? "Live auction" : st === "upcoming" ? "Coming soon" : "Ended"}</span>
         ${st === "ended" && top ? `<span class="stamp">SOLD</span>` : ""}</div>
@@ -116,7 +116,7 @@
     try { offerProducts = await api.offerProducts(); } catch (e) { toast(e.message, true); offerProducts = []; }
     $("#offerGrid").innerHTML = offerProducts.length ? offerProducts.map((p, i) => `
       <article class="poster" data-i="${i}" tabindex="0">
-        <div class="wanted">WANTED</div>
+        <div class="wanted">オファー</div>
         <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i))}" alt="${esc(p.name)}"><span class="badge orange">Open to offers</span></div>
         <div class="tag">${esc(p.series || "Collectible")}</div>
         <div class="name">${esc(p.name)}</div>

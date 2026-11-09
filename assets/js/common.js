@@ -325,8 +325,44 @@
       <span>© ${new Date().getFullYear()} ${esc(C.STORE_NAME || "")} · ${esc(C.STORE_TAGLINE || "")} · <a class="admin-link" href="admin.html" rel="nofollow">Admin</a></span>
       <span>Powered by <a href="https://breadywebstudio.vercel.app" target="_blank" rel="noopener">Bready Web Studios</a></span></div>`;
     document.body.appendChild(foot);
+    if (active === "catalog" || active === "bidding") sailingShip();
     refreshAuthSlot();
     auth.onChange(refreshAuthSlot);
+  }
+
+  // A small ship that sails down the right side of the screen as the page scrolls:
+  // top of the page = just under the header, bottom of the page = bottom of the screen.
+  // A wake trails behind and ripples spread from the hull; both pick up while the page is moving.
+  function sailingShip() {
+    const ship = document.createElement("div");
+    ship.className = "sailing-ship";
+    ship.setAttribute("aria-hidden", "true");
+    ship.innerHTML = `
+      <div class="wake"></div>
+      <div class="ripples"><b></b><b></b><b></b></div>
+      <div class="hull"><img src="assets/img/ship.webp" alt=""></div>`;
+    document.body.appendChild(ship);
+    let lastY = scrollY, queued = false;
+    const place = () => {
+      queued = false;
+      const header = document.querySelector(".site-header");
+      const top = (header ? header.getBoundingClientRect().bottom : 0) + 16;
+      const max = document.documentElement.scrollHeight - innerHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+      const travel = Math.max(0, innerHeight - top - ship.offsetHeight - 14);
+      ship.style.transform = `translateY(${(top + p * travel).toFixed(1)}px)`;
+      if (scrollY !== lastY) {
+        ship.classList.toggle("up", scrollY < lastY);
+        ship.classList.add("moving");
+        clearTimeout(ship._t); ship._t = setTimeout(() => ship.classList.remove("moving"), 260);
+      }
+      lastY = scrollY;
+    };
+    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(place); } };
+    addEventListener("scroll", queue, { passive: true });
+    addEventListener("resize", queue);
+    ship.querySelector("img").addEventListener("load", queue);
+    place();
   }
 
   async function refreshAuthSlot() {

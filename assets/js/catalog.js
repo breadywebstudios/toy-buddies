@@ -58,6 +58,7 @@
         ${out ? `<span class="stamp">SOLD</span>` : p.condition?.startsWith("Pre") ? `<span class="badge gold">Pre-owned</span>` : ""}
         ${p.accept_offers && !out ? `<span class="badge orange right">Offers</span>` : ""}
       </div>
+      <div class="alive">Boxed or loose</div>
       <div class="tag">${esc(p.series || "Collectible")}</div>
       <div class="name">${esc(p.name)}</div>
       ${p.price != null ? `<div class="bounty">${money(p.price)}</div>` : `<div class="bounty muted">Price on request</div>`}

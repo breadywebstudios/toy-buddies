@@ -57,6 +57,7 @@
       <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i + 3))}" alt="${esc(p.name || "")}">
         <span class="badge ${st === "live" ? "" : st === "upcoming" ? "gold" : "navy"}">${st === "live" ? "Live auction" : st === "upcoming" ? "Coming soon" : "Ended"}</span>
         ${st === "ended" && top ? `<span class="stamp">SOLD</span>` : ""}</div>
+      <div class="alive">Boxed or loose</div>
       <div class="tag">${esc(p.series || "Collectible")}</div>
       <div class="name">${esc(p.name || "Figure")}</div>
       <div class="bounty">${money(top ? a.current_bid : a.start_price)}</div>
@@ -118,6 +119,7 @@
       <article class="poster" data-i="${i}" tabindex="0">
         <div class="wanted">WANTED</div>
         <div class="frame"><img loading="lazy" src="${esc(imgOf(p, i))}" alt="${esc(p.name)}"><span class="badge orange">Open to offers</span></div>
+        <div class="alive">Boxed or loose</div>
         <div class="tag">${esc(p.series || "Collectible")}</div>
         <div class="name">${esc(p.name)}</div>
         ${p.price != null ? `<div class="bounty">${money(p.price)}</div>` : `<div class="bounty muted">Name your price</div>`}

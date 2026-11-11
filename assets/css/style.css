@@ -722,10 +722,27 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 .photo-actions{flex:1; min-width:200px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
 .photo-actions small{flex-basis:100%; color:var(--muted); font-weight:600; line-height:1.4}
 
+/* ===== Bready Darkroom app, opened full screen over the admin ===== */
+.darkroom-overlay{position:fixed; inset:0; z-index:2147483000; background:#18181a}
+.darkroom-overlay iframe{position:absolute; inset:0; width:100%; height:100%; border:0; display:block; opacity:0; transition:opacity .3s ease}
+.darkroom-overlay.ready iframe{opacity:1}
+.darkroom-loading{position:absolute; inset:0; display:grid; place-items:center; color:#f0a04b; font-weight:800; font-size:1.1rem; letter-spacing:.02em}
+
 /* ===== Bready Darkroom (the photo editor) in Toy Buddies colours =====
    "body .pe-root" outranks the editor's own styles, which load later. */
 body .pe-root{--pe-ink:#0B1627; --pe-paper:#FFF8EA; --pe-line:#E3E7EE; --pe-muted:#5B6474; --pe-accent:#EE8A2B; --pe-accent-soft:#FCEBC8; --pe-warn:#D06F17; font-family:var(--font-body)}
-body .pe-root .modal{border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy), 0 40px 80px -30px rgba(0,0,0,.8)}
+/* The site's own pop-up class is also called .modal (full-screen, centred grid). Undo that here so the
+   Darkroom keeps its own dialog layout: header, body and footer stacked, centred by its overlay. */
+body .pe-root .overlay{display:grid; place-items:center; padding:16px; background:rgba(4,6,12,.62); backdrop-filter:blur(3px)}
+body .pe-root .modal{
+  position:relative; inset:auto; z-index:auto; display:flex; flex-direction:column; place-items:initial;
+  padding:0; margin:0; background:var(--pe-paper); backdrop-filter:none; overflow:hidden;
+  max-height:calc(100vh - 32px); border-radius:18px;
+  border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy), 0 40px 80px -30px rgba(0,0,0,.8);
+}
+body .pe-root .mh{padding:12px 20px; flex:none}
+body .pe-root .mf{padding:12px 20px; flex:none; background:#fff}
+body .pe-root .mb{padding:14px 20px; flex:1 1 auto; min-height:0; overflow:auto}
 body .pe-root .mh{background:var(--navy); color:#fff; border-bottom:4px solid var(--gold)}
 body .pe-root .mh h3{font-family:var(--font-display); font-weight:400; font-size:24px; color:var(--gold); letter-spacing:.02em}
 body .pe-root .mh h3::before{content:"🎞️ "}
@@ -739,18 +756,24 @@ body .pe-root .seg button.on{border-color:var(--navy); background:var(--gold); f
    The photo stays put while the controls column scrolls. */
 @media (min-width:900px){
   body .pe-root .modal.pe{width:min(1180px, 100%)}
+  /* everything fits on one screen: no scroll bars on normal laptop and desktop screens */
   body .pe-root .pe .mb{
-    display:grid; grid-template-columns:minmax(0, 1.55fr) minmax(310px, 1fr);
-    column-gap:22px; row-gap:12px; align-items:start; align-content:start;
+    display:grid; grid-template-columns:minmax(0, 1.55fr) minmax(300px, 1fr);
+    column-gap:22px; row-gap:9px; align-items:start; align-content:start; overflow:hidden;
   }
   body .pe-root .pe .mb > *{grid-column:2; min-width:0}
   body .pe-root .pe .mb > .pe-stage{
-    grid-column:1; grid-row:1 / span 12; position:sticky; top:0; align-self:stretch;
-    min-height:min(620px, calc(100vh - 200px)); --pe-stage-max:620;
+    grid-column:1; grid-row:1 / span 12; align-self:stretch; padding:10px; overflow:hidden;
+    min-height:min(560px, calc(100vh - 190px)); --pe-stage-max:560;
   }
-  body .pe-root .pe .pe-hint{text-align:left; margin-top:0}
+  body .pe-root .pe .pe-hint{text-align:left; margin-top:0; font-size:12px; line-height:1.4}
   body .pe-root .pe .pe-rot{justify-content:flex-start; margin-top:0}
+  body .pe-root .pe .pe-look{padding:10px 12px; gap:4px}
+  body .pe-root .pe .pe-row{grid-template-columns:84px 1fr 40px; font-size:13px}
+  body .pe-root .pe .seg button{padding:6px 11px}
 }
+/* very short screens: allow the controls to scroll rather than cut anything off */
+@media (min-width:900px) and (max-height:620px){ body .pe-root .pe .mb{overflow:auto} }
 
 /* ===== Owner / admin login (admin.html) — deliberately different from the member pop-up ===== */
 .admin-gate{max-width:440px; margin:48px auto; padding:30px 30px 24px; border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy)}

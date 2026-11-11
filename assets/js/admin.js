@@ -100,7 +100,7 @@
     $$("#side button").forEach((b) => b.classList.toggle("active", b.dataset.tab === t));
     $$("[data-pane]").forEach((p) => p.classList.toggle("hidden", p.dataset.pane !== t));
     history.replaceState(null, "", "#" + t);
-    ({ dash: loadDash, cats: renderCats, prods: loadProds, aucs: loadAucs, offs: loadOffs, users: loadUsers })[t]();
+    ({ dash: loadDash, cats: renderCats, prods: loadProds, aucs: loadAucs, offs: loadOffs, gal: loadGal, users: loadUsers })[t]();
   }
   $$("#side button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
 
@@ -195,9 +195,16 @@
         <div><label>Price (AED) — blank = on request</label><input name="price" type="number" min="0" step="any" value="${v("price")}"></div>
         <div><label>Stock</label><input name="stock" type="number" min="0" value="${v("stock", 1)}"></div>
         <div class="full"><label>Description</label><textarea name="description" rows="3">${v("description")}</textarea></div>
-        <div class="full"><label>Photo</label><input type="file" name="file" accept="image/*">
-          <input name="image_url" placeholder="…or paste an image URL" value="${p?.image_url?.startsWith("data:") ? "" : v("image_url")}" style="margin-top:6px">
-          <img class="preview-img" id="prev" src="${esc(imgOf(p || { name: "New" }))}" alt=""></div>
+        <div class="full"><label>Photo</label>
+          <div class="photo-field">
+            <img class="preview-img" id="prev" src="${esc(imgOf(p || { name: "New" }))}" alt="">
+            <div class="photo-actions">
+              <label class="btn sm" style="margin:0">📷 Choose photo<input type="file" name="file" accept="image/*" hidden></label>
+              <button class="btn sm ghost" type="button" id="pDarkroom" ${p?.image_url ? "" : "hidden"}>✂️ Edit in Bready Darkroom</button>
+              <small id="pPhotoNote">Every photo opens in <b>Bready Darkroom</b>: crop to the poster frame, straighten, fix the light. It's shrunk to save space before upload.</small>
+            </div>
+          </div>
+          <input name="image_url" placeholder="…or paste an image URL" value="${p?.image_url?.startsWith("data:") ? "" : v("image_url")}" style="margin-top:8px"></div>
         <label class="check"><input type="checkbox" name="is_published" ${p ? (p.is_published ? "checked" : "") : "checked"}> Show on website</label>
         <label class="check"><input type="checkbox" name="accept_offers" ${p?.accept_offers ? "checked" : ""}> Open to offers</label>
         <div><label>Minimum offer (AED, optional)</label><input name="min_offer" type="number" min="0" step="any" value="${v("min_offer")}"></div>
@@ -205,15 +212,40 @@
       </form></div>`);
     const f = $("#prodForm", m);
     let uploaded = p?.image_url || null;
-    f.file.onchange = () => { const file = f.file.files[0]; if (file) $("#prev", m).src = URL.createObjectURL(file); };
-    f.image_url.oninput = () => { if (f.image_url.value) $("#prev", m).src = f.image_url.value; };
+    let edited = null, source = null;   // Darkroom result, and the original file it came from (re-edit from the original)
+    const openDarkroom = async (src, isStored) => {
+      try {
+        const dr = await import("./darkroom.js"); dr.useToasts(toast);
+        const opts = { ...dr.DARKROOM.figure, title: f.name.value.trim() || "Figure photo", ...(isStored ? { look: dr.NO_LOOK } : {}) };
+        const r = isStored ? await dr.darkroomUrl(src, opts) : await dr.darkroom(src, opts);
+        if (!r) return false;
+        edited = r.blob;
+        $("#prev", m).src = URL.createObjectURL(edited);
+        $("#pPhotoNote", m).textContent = `Ready · ${edited.w}×${edited.h} px · ${Math.max(1, Math.round(edited.size / 1024))} KB — uploads when you save.`;
+        $("#pDarkroom", m).hidden = false;
+        return true;
+      } catch (x) { toast(x.message, true); return false; }
+    };
+    f.file.onchange = async () => {
+      const file = f.file.files[0]; if (!file) return;
+      if (await openDarkroom(file, false)) source = file; else f.file.value = "";
+    };
+    $("#pDarkroom", m).onclick = () => {
+      if (source) return openDarkroom(source, false);
+      const url = f.image_url.value.trim() || p?.image_url;
+      if (url) openDarkroom(url, true);
+    };
+    f.image_url.oninput = () => { if (f.image_url.value) { $("#prev", m).src = f.image_url.value; edited = null; source = null; } };
     $("#pCancel", m).onclick = closeModal;
     f.onsubmit = async (e) => {
       e.preventDefault();
       const btn = $("#pSave", m); btn.disabled = true; btn.textContent = "Saving…";
       try {
         const file = f.file.files[0];
-        if (file) {
+        if (edited) {
+          btn.textContent = "Uploading photo…";
+          uploaded = await admin.uploadImage(edited);   // already sized by the Darkroom
+        } else if (file) {
           if (file.size > 30 * 1024 * 1024) throw new Error("Photo is over 30 MB — please use a smaller one");
           btn.textContent = "Optimising photo…";
           uploaded = await admin.uploadImage(file);
@@ -230,6 +262,144 @@
       } catch (x) { toast(x.message, true); btn.disabled = false; btn.textContent = "Save figure"; }
     };
   }
+
+  // ---------- Gallery ----------
+  const G = App.gallery;
+  let gal = [], galBusy = false;
+  const kb = (n) => (n ? `${Math.max(1, Math.round(n / 1024))} KB` : "");
+  const mb = (n) => `${(n / 1048576).toFixed(1)} MB`;
+  const saveGal = async (msg) => { try { await G.save(gal); if (msg) toast(msg); } catch (e) { toast(e.message, true); } };
+
+  async function loadGal() {
+    if (galBusy) return renderGal();
+    try { gal = await G.list(); renderGal(); } catch (e) { toast(e.message, true); }
+  }
+  function renderGal() {
+    const total = gal.reduce((s, g) => s + (g.size || 0), 0);
+    $("#galMeta").textContent = gal.length
+      ? `${gal.length} photo${gal.length === 1 ? "" : "s"}${total ? ` · ${mb(total)} stored` : ""}`
+      : "No photos yet. Add some to fill the carousel.";
+    $("#galGrid").innerHTML = gal.map((g, i) => `
+      <figure class="gal-item" draggable="true" data-i="${i}">
+        <div class="gal-thumb"><span class="gal-num">${i + 1}</span><img src="${esc(g.url)}" alt="" loading="lazy" draggable="false"></div>
+        <input class="gal-cap" data-i="${i}" maxlength="120" placeholder="Caption (optional)" value="${esc(g.caption || "")}">
+        <div class="gal-tools">
+          <button class="btn sm ghost" type="button" data-act="left" data-i="${i}" title="Move earlier" ${i ? "" : "disabled"}>←</button>
+          <button class="btn sm ghost" type="button" data-act="right" data-i="${i}" title="Move later" ${i < gal.length - 1 ? "" : "disabled"}>→</button>
+          <button class="btn sm ghost" type="button" data-act="edit" data-i="${i}" title="Edit in Bready Darkroom">✂️</button>
+          <button class="btn sm ghost" type="button" data-act="del" data-i="${i}" title="Delete photo">🗑</button>
+        </div>
+        <small>${g.w && g.h ? `${g.w}×${g.h} · ` : ""}${kb(g.size)}</small>
+      </figure>`).join("");
+  }
+  const moveGal = (from, to) => {
+    if (from === to || to < 0 || to >= gal.length) return;
+    const [it] = gal.splice(from, 1); gal.splice(to, 0, it);
+    renderGal(); saveGal();
+  };
+
+  // Add photos: quick (auto-optimised, 3 at a time) or one by one through the Darkroom.
+  async function addGalPhotos(fileList, viaDarkroom) {
+    if (galBusy) return toast("Still adding the last batch — please wait", true);
+    let files = [...fileList].filter((f) => f.type.startsWith("image/"));
+    const known = new Set(gal.map((g) => g.src).filter(Boolean));
+    const dupes = files.filter((f) => known.has(f.name)).length;
+    files = files.filter((f) => !known.has(f.name));
+    if (!files.length) return toast(dupes ? "Those photos are already in the gallery" : "No photos selected", true);
+
+    galBusy = true;
+    const prog = $("#galProgress"), base = gal.slice(), results = [];
+    let done = 0, failed = 0, before = 0, after = 0;
+    const show = () => { prog.querySelector("i").style.width = `${Math.round((done / files.length) * 100)}%`; prog.querySelector("span").textContent = `${viaDarkroom ? "Saving" : "Optimising & uploading"} ${done} of ${files.length} — keep this tab open`; };
+    const sync = () => { gal = base.concat(results.filter(Boolean)); };
+    const keep = async (blob, file, idx) => {
+      const it = await G.upload(blob);
+      results[idx] = { ...it, caption: "", src: file.name, added: new Date().toISOString() };
+      before += file.size; after += it.size || 0;
+    };
+    const checkpoint = async () => { if (done % 10 === 0) { sync(); renderGal(); await G.save(gal).catch(() => {}); } };
+    const leaveGuard = (e) => { e.preventDefault(); e.returnValue = ""; };
+    addEventListener("beforeunload", leaveGuard);
+    prog.classList.remove("hidden"); show();
+    try {
+      if (viaDarkroom) {
+        const dr = await import("./darkroom.js"); dr.useToasts(toast);
+        let idx = 0;
+        await dr.darkroomMany(files, dr.DARKROOM.gallery, async (blob, file) => {
+          try { await keep(await G.optimise(blob), file, idx++); } catch (e) { failed++; console.warn(file.name, e); }
+          done++; show(); await checkpoint();
+        });
+      } else {
+        let next = 0;
+        const worker = async () => {
+          while (next < files.length) {
+            const i = next++, file = files[i];
+            try { await keep(await G.optimise(file), file, i); } catch (e) { failed++; console.warn(file.name, e); }
+            done++; show(); await checkpoint();
+          }
+        };
+        await Promise.all([worker(), worker(), worker()]);
+      }
+      sync(); await G.save(gal); renderGal();
+      const added = results.filter(Boolean).length;
+      toast(`Added ${added} photo${added === 1 ? "" : "s"}${before ? ` · ${mb(before)} → ${mb(after)}` : ""}${dupes ? ` · skipped ${dupes} already here` : ""}${failed ? ` · ${failed} failed` : ""}`, failed > 0);
+    } catch (e) { sync(); renderGal(); toast(e.message, true); }
+    finally {
+      galBusy = false; prog.classList.add("hidden");
+      removeEventListener("beforeunload", leaveGuard);
+      $("#galFiles").value = ""; $("#galEditFiles").value = "";
+    }
+  }
+  $("#galFiles").onchange = (e) => addGalPhotos(e.target.files, false);
+  $("#galEditFiles").onchange = (e) => addGalPhotos(e.target.files, true);
+
+  $("#galGrid").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-act]"); if (!b || galBusy) return;
+    const i = +b.dataset.i, g = gal[i]; if (!g) return;
+    if (b.dataset.act === "left") return moveGal(i, i - 1);
+    if (b.dataset.act === "right") return moveGal(i, i + 1);
+    if (b.dataset.act === "del") {
+      if (!confirm("Delete this photo from the gallery? This can't be undone.")) return;
+      gal.splice(i, 1); renderGal();
+      try { await G.save(gal); await G.remove([g.path]); toast("Photo deleted"); } catch (x) { toast(x.message, true); }
+      return;
+    }
+    if (b.dataset.act === "edit") {
+      try {
+        const dr = await import("./darkroom.js"); dr.useToasts(toast);
+        const r = await dr.darkroomUrl(g.url, { ...dr.DARKROOM.gallery, title: g.caption || g.src || `Photo ${i + 1}` });
+        if (!r) return;
+        b.disabled = true;
+        const it = await G.upload(await G.optimise(r.blob));
+        gal[i] = { ...g, ...it };
+        await G.save(gal); renderGal();
+        await G.remove([g.path]).catch(() => {});
+        toast("Photo updated");
+      } catch (x) { toast(x.message, true); b.disabled = false; }
+    }
+  });
+  $("#galGrid").addEventListener("change", (e) => {
+    if (!e.target.matches(".gal-cap")) return;
+    const g = gal[+e.target.dataset.i]; if (!g) return;
+    g.caption = e.target.value.trim(); saveGal("Caption saved");
+  });
+  // drag to reorder
+  let dragFrom = null;
+  $("#galGrid").addEventListener("dragstart", (e) => {
+    const it = e.target.closest(".gal-item"); if (!it || galBusy) return e.preventDefault();
+    dragFrom = +it.dataset.i; it.classList.add("dragging"); e.dataTransfer.effectAllowed = "move";
+  });
+  $("#galGrid").addEventListener("dragover", (e) => {
+    const it = e.target.closest(".gal-item"); if (dragFrom === null || !it) return;
+    e.preventDefault();
+    $$(".gal-item.drag-over").forEach((x) => x !== it && x.classList.remove("drag-over"));
+    it.classList.add("drag-over");
+  });
+  $("#galGrid").addEventListener("drop", (e) => {
+    const it = e.target.closest(".gal-item"); if (dragFrom === null || !it) return;
+    e.preventDefault(); const from = dragFrom; dragFrom = null; moveGal(from, +it.dataset.i);
+  });
+  $("#galGrid").addEventListener("dragend", () => { dragFrom = null; $$(".gal-item.dragging, .gal-item.drag-over").forEach((x) => x.classList.remove("dragging", "drag-over")); });
 
   // ---------- CSV import ----------
   const CSV_COLS = ["name", "series", "brand", "scale", "category", "condition", "price", "stock", "description", "image_url", "accept_offers"];

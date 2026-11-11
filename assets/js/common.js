@@ -310,6 +310,44 @@
     },
   };
 
+  // ---------- Gallery ----------
+  // Photos live in Storage (figures/gallery/…); their order and captions live in a small list file
+  // next to them (figures/gallery/gallery.json). No database table or SQL is needed.
+  const GALLERY_LIST = "gallery/gallery.json";
+  const GALLERY_OUT = { max: 1400, target: 220 * 1024 };   // ~220 KB each: 270 photos ≈ 60 MB instead of ~380 MB
+  const NEUTRAL_LOOK = { warmth: 0, bright: 0, vibrance: 0 }; // gallery photos are already edited: don't re-warm them
+  const gallery = {
+    OUT: GALLERY_OUT, LOOK: NEUTRAL_LOOK,
+    async list() {
+      if (DEMO) return D.gallery || (D.gallery = [1, 2, 3, 4, 5].map((n) => ({ path: `demo-${n}`, url: `assets/img/figures/figure-0${n}.webp`, caption: "", src: "" })));
+      const { data, error } = await sb.storage.from("figures").download(GALLERY_LIST);
+      if (error || !data) return [];   // no gallery yet
+      try { const j = JSON.parse(await data.text()); return Array.isArray(j.items) ? j.items : []; } catch { return []; }
+    },
+    async save(items) {
+      if (DEMO) { D.gallery = items; return; }
+      const body = new Blob([JSON.stringify({ updated: new Date().toISOString(), items })], { type: "application/json" });
+      const { error } = await sb.storage.from("figures").upload(GALLERY_LIST, body, { upsert: true, contentType: "application/json", cacheControl: "0" }); err(error);
+    },
+    // Shrink a photo before it's stored (no-op if it already came out of the photo editor).
+    async optimise(fileOrBlob) {
+      const pe = await import("./photo-editor.js");
+      return pe.ensureOptimised(fileOrBlob, GALLERY_OUT, NEUTRAL_LOOK);
+    },
+    async upload(blob) {
+      const ext = blob.type === "image/webp" ? "webp" : "jpg";
+      const path = `gallery/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      if (DEMO) return { path, url: URL.createObjectURL(blob), w: blob.w, h: blob.h, size: blob.size };
+      const { error } = await sb.storage.from("figures").upload(path, blob, { contentType: blob.type, cacheControl: "31536000", upsert: false }); err(error);
+      return { path, url: sb.storage.from("figures").getPublicUrl(path).data.publicUrl, w: blob.w, h: blob.h, size: blob.size };
+    },
+    async remove(paths) {
+      paths = paths.filter((p) => p && p.startsWith("gallery/"));
+      if (DEMO || !paths.length) return;
+      const { error } = await sb.storage.from("figures").remove(paths); err(error);
+    },
+  };
+
   // ---------- Layout ----------
   function renderChrome(active) {
     const head = document.createElement("header");
@@ -318,6 +356,7 @@
       <a class="brand" href="index.html"><img class="brand-mark" src="assets/img/logo-180.png" alt="" width="46" height="46"><span class="brand-name">${esc(C.STORE_NAME || "Figure Store")}</span></a>
       <nav class="nav">
         <a href="index.html" class="${active === "catalog" ? "active" : ""}">Catalogue</a>
+        <a href="gallery.html" class="${active === "gallery" ? "active" : ""}">Gallery</a>
         <a href="bidding.html" class="${active === "bidding" ? "active" : ""}">Bid &amp; Offers</a>
         <span id="authSlot"></span>
       </nav></div>`;
@@ -334,7 +373,8 @@
       <span>© ${new Date().getFullYear()} ${esc(C.STORE_NAME || "")} · ${esc(C.STORE_TAGLINE || "")} · <a class="admin-link" href="admin.html" target="_blank" rel="nofollow noopener">Admin</a></span>
       <span>Powered by <a href="https://breadywebstudio.vercel.app" target="_blank" rel="noopener">Bready Web Studios</a></span></div>`;
     document.body.appendChild(foot);
-    if (active === "catalog" || active === "bidding") sailingShip();
+    if (active === "catalog" || active === "bidding" || active === "gallery") sailingShip();
+    scrollFx();
     refreshAuthSlot();
     auth.onChange(refreshAuthSlot);
     // "Forgot password" email links land here with a recovery session: ask for the new password
@@ -374,6 +414,60 @@
     addEventListener("resize", queue);
     ship.querySelector("img").addEventListener("load", queue);
     place();
+  }
+
+  // Scroll feel: compact header, progress line, hero parallax, back-to-top, and springy reveals.
+  function scrollFx() {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const header = $(".site-header"), heroBox = $(".hero"), heroIn = $(".hero .container");
+    const bar = document.createElement("div"); bar.className = "scroll-progress"; bar.setAttribute("aria-hidden", "true");
+    const up = document.createElement("button"); up.type = "button"; up.className = "to-top"; up.setAttribute("aria-label", "Back to top"); up.textContent = "↑";
+    up.onclick = () => scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    document.body.append(bar, up);
+
+    let queued = false;
+    const frame = () => {
+      queued = false;
+      const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
+      header?.classList.toggle("scrolled", y > 8);
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max).toFixed(4) : 0})`;
+      up.classList.toggle("show", y > innerHeight * 0.9);
+      if (heroIn && !reduce) {
+        const h = heroBox.offsetHeight || 1, p = Math.min(1, y / h);
+        if (p < 1) { heroIn.style.transform = `translate3d(0, ${(y * 0.3).toFixed(1)}px, 0)`; heroIn.style.opacity = (1 - p * 1.1).toFixed(3); }
+        heroBox.style.setProperty("--sky-shift", `${(Math.min(y, h) * 0.18).toFixed(1)}px`);
+      }
+    };
+    addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(frame); } }, { passive: true });
+    addEventListener("resize", frame);
+    frame();
+
+    // Reveals are for the shop only; the admin stays calm and quick to work in.
+    if (reduce || AREA === "admin" || !("IntersectionObserver" in window)) return;
+    document.documentElement.classList.add("fx");
+    const SEL = ".poster, .section-title, .section-sub, .toolbar, .chips, .result-meta, .empty, .notice, .panel, .carousel, .car-bar";
+    const seen = new Set();   // anything already shown appears instantly when lists refresh (e.g. auction timers)
+    const keyOf = (el) => (el.closest("[id]")?.id || "") + "|" + (el.dataset.id || el.textContent.trim().slice(0, 80));
+    const io = new IntersectionObserver((entries) => {
+      let n = 0;
+      entries.filter((e) => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left)
+        .forEach((e) => { e.target.style.setProperty("--d", `${Math.min(n++, 7) * 70}ms`); e.target.classList.add("in"); io.unobserve(e.target); });
+    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.06 });
+    const prep = (root) => {
+      const els = [...(root.matches?.(SEL) ? [root] : []), ...(root.querySelectorAll ? root.querySelectorAll(SEL) : [])];
+      els.forEach((el) => {
+        if (el.classList.contains("rv") || el.closest(".modal, .hero, .site-header, #toast")) return;
+        el.classList.add("rv");
+        const k = keyOf(el);
+        if (seen.has(k)) { el.classList.add("in"); return; }
+        seen.add(k);
+        io.observe(el);
+      });
+    };
+    prep(document.body);
+    new MutationObserver((muts) => muts.forEach((m) => m.addedNodes.forEach((n) => n.nodeType === 1 && prep(n))))
+      .observe(document.body, { childList: true, subtree: true });
   }
 
   async function refreshAuthSlot() {
@@ -474,5 +568,5 @@
     return `https://wa.me/${C.WHATSAPP}?text=${encodeURIComponent(text)}`;
   }
 
-  window.App = { C, DEMO, AREA, sb, $, $$, esc, money, debounce, toast, placeholder, imgOf, auth, api, admin, renderChrome, refreshAuthSlot, openModal, closeModal, openAuth, waLink };
+  window.App = { C, DEMO, AREA, sb, gallery, $, $$, esc, money, debounce, toast, placeholder, imgOf, auth, api, admin, renderChrome, refreshAuthSlot, openModal, closeModal, openAuth, waLink };
 })();

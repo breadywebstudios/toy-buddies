@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gallery — Toy Buddies</title>
+  <meta name="description" content="Unboxings, rare finds and display shots from the Toy Buddies anime figure collection in Dubai.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/logo-180.png">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <img class="hero-mascot" src="assets/img/logo.webp" alt="Toy Buddies — Totoy the mascot" width="132" height="132">
+        <div class="eyebrow">Gallery</div>
+        <h1>Totoy's <span>Shelf</span></h1>
+        <p>Unboxings, rare finds and display shots from the collection. Drag, swipe or use the arrows to spin through.</p>
+      </div>
+    </section>
+
+    <div class="container gallery-wrap" id="gallery">
+      <div class="carousel" id="carousel" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Photo gallery — use the left and right arrow keys">
+        <div class="car-floor" aria-hidden="true"></div>
+        <div class="car-ring" id="ring"></div>
+        <div class="car-empty hidden" id="carEmpty"></div>
+        <button class="car-nav prev" id="carPrev" type="button" aria-label="Previous photo">‹</button>
+        <button class="car-nav next" id="carNext" type="button" aria-label="Next photo">›</button>
+      </div>
+      <p class="car-caption" id="carCaption" aria-live="polite"></p>
+      <div class="car-bar">
+        <button class="btn sm ghost" id="carPlay" type="button" aria-pressed="false">▶ Play</button>
+        <input type="range" id="carScrub" min="1" max="1" value="1" aria-label="Jump to photo">
+        <span class="car-count" id="carCount">–</span>
+      </div>
+    </div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/gallery.js"></script>
+</body>
+</html>

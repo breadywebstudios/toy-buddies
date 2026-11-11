@@ -154,7 +154,8 @@ export async function autoProcess(file, look, kind){
 export const photoReadyNote = b => `Photo ready · ${b.w}×${b.h} px · ${Math.max(1, Math.round(b.size/1024))} KB`;
 
 /* Opens the editor. Resolves { blob, look, rest } or null if cancelled.
-   opts: kind ("item" | "review" | "gallery"), aspect (1 | 4/3 | 3/4 | "orig"), title, count, allowRest */
+   opts: kind ("item" | "review" | "gallery"), aspect (1 | 4/3 | 3/4 | "orig"), title, count, allowRest,
+         heading (dialog title, default "Edit photo"), lookLabel (default "Food look") */
 export async function photoEditor(file, opts = {}){
   injectCss();
   const kind = opts.kind || "item", out = opts.out || PHOTO_OUT[kind] || PHOTO_OUT.item;
@@ -187,7 +188,7 @@ export async function photoEditor(file, opts = {}){
   const root = document.createElement("div");
   root.className = "pe-root";
   root.innerHTML = `<div class="overlay"><div class="modal pe" role="dialog" aria-modal="true" aria-label="Edit photo">
-    <div class="mh"><h3>Edit photo${opts.count ? ` <small>${esc(opts.count)}</small>` : ""}</h3><button class="x" data-pe="cancel" aria-label="Close">×</button></div>
+    <div class="mh"><h3>${esc(opts.heading || "Edit photo")}${opts.count ? ` <small>${esc(opts.count)}</small>` : ""}</h3><button class="x" data-pe="cancel" aria-label="Close">×</button></div>
     <div class="mb">
       ${opts.title ? `<div class="pe-for">${esc(opts.title)}</div>` : ""}
       ${opts.lockAspect ? `<div class="pe-lock">${esc(opts.lockAspect)}</div>` : `<div class="seg" id="peAspect">${ASPECTS.map(([l, a]) => `<button type="button" data-a="${a}">${l}</button>`).join("")}</div>`}
@@ -201,7 +202,7 @@ export async function photoEditor(file, opts = {}){
         <button type="button" class="btn ghost sm" id="peLevel" title="Undo the straighten angle">Level</button>
       </div>
       <div class="pe-look">
-        <div class="pe-look-head"><b>Food look</b>
+        <div class="pe-look-head"><b>${esc(opts.lookLabel || "Food look")}</b>
           <div class="pe-look-btns"><button type="button" class="btn ghost sm" id="peCompare">Hold to see original</button><button type="button" class="btn ghost sm" id="peReset">Reset</button></div></div>
         ${SLIDERS.map(([k, l, mn, mx]) => `<div class="pe-row"><span>${l}</span><input type="range" data-look="${k}" min="${mn}" max="${mx}" step="1" value="${look[k]}" aria-label="${l}"><output data-out="${k}">${look[k]}</output></div>`).join("")}
       </div>

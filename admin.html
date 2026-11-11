@@ -25,6 +25,7 @@
           <button data-tab="prods">🧸 Figures</button>
           <button data-tab="aucs">⏱️ Auctions</button>
           <button data-tab="offs">💬 Offers</button>
+          <button data-tab="gal">🖼️ Gallery</button>
           <button data-tab="users">👥 Users</button>
         </aside>
         <section>
@@ -83,6 +84,19 @@
             <h2>Offers</h2>
             <div class="row" style="margin-bottom:12px;max-width:260px"><select id="ofilter"><option value="pending">Pending</option><option value="">All</option><option value="accepted">Accepted</option><option value="rejected">Rejected</option></select></div>
             <div class="table-wrap"><table><thead><tr><th>Figure</th><th>Offer</th><th>From</th><th>Message</th><th>Status</th><th></th></tr></thead><tbody id="offRows"></tbody></table></div>
+          </div>
+
+          <!-- Gallery -->
+          <div class="panel hidden" data-pane="gal">
+            <h2>Gallery</h2>
+            <p class="gal-help">Photos for the 3D carousel on the <a href="gallery.html" target="_blank" rel="noopener">Gallery page</a>. Each photo is shrunk to about 1400&nbsp;px and ~220&nbsp;KB before it's stored, to save space. Drag photos to change the order; captions save when you click away.</p>
+            <div class="actions" style="margin-bottom:12px">
+              <label class="btn" style="margin:0" title="Fastest for big batches: every photo is optimised automatically">⬆ Quick add photos<input type="file" id="galFiles" accept="image/*" multiple hidden></label>
+              <label class="btn gold" style="margin:0" title="Crop, straighten and adjust each photo first">✂️ Add through Bready Darkroom<input type="file" id="galEditFiles" accept="image/*" multiple hidden></label>
+            </div>
+            <div class="gal-progress hidden" id="galProgress"><div class="gal-bar"><i></i></div><span></span></div>
+            <p class="result-meta" id="galMeta"></p>
+            <div class="gal-grid" id="galGrid"></div>
           </div>
 
           <!-- Users -->

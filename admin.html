@@ -14,11 +14,8 @@
 </head>
 <body>
   <main class="container">
-    <div id="gate" class="panel hidden" style="max-width:420px;margin:40px auto;text-align:center">
-      <h2>Captain's Quarters</h2>
-      <p id="gateMsg">Sign in with the admin account to manage the store.</p>
-      <button class="btn" id="gateBtn">Sign in</button>
-    </div>
+    <!-- Owner / admin login. Separate from member accounts: it has its own session and no public sign-up. -->
+    <div id="gate" class="panel admin-gate hidden" aria-live="polite"></div>
 
     <div id="app" class="hidden">
       <div class="admin-layout">
@@ -94,7 +91,7 @@
             <form id="addAdminForm" class="notice" style="margin:0 0 16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
               <div style="flex:1;min-width:220px"><label for="adminEmail">Add a site admin</label><input id="adminEmail" type="email" required placeholder="their-email@example.com" autocomplete="off"></div>
               <button class="btn" type="submit">Add admin</button>
-              <small style="flex-basis:100%;font-weight:600">If they already have an account they become admin straight away. If not, they become admin automatically when they sign up with this email.</small>
+              <small style="flex-basis:100%;font-weight:600">If they already have an account they become admin straight away. If not, send them this admin page — they choose <b>“Invited by the owner? Create your admin account”</b> and use this email.</small>
             </form>
             <div id="invitesWrap" class="hidden" style="margin-bottom:16px">
               <label>Waiting to sign up</label>
@@ -113,6 +110,7 @@
   </main>
 
   <script src="config.js"></script>
+  <script>window.APP_AREA = "admin";</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/common.js"></script>
   <script src="assets/js/admin.js"></script>

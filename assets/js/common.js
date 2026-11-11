@@ -2,7 +2,12 @@
 (function () {
   const C = window.APP_CONFIG || {};
   const DEMO = !C.SUPABASE_URL || !C.SUPABASE_ANON_KEY;
-  const sb = DEMO ? null : window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+  // Two separate logins: the shop (members) and the admin page (owner + staff) each keep their
+  // own session, so signing in or out on one never affects the other.
+  const AREA = window.APP_AREA === "admin" ? "admin" : "shop";
+  const sb = DEMO ? null : window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, {
+    auth: { storageKey: AREA === "admin" ? "toybuddies-admin-session" : "toybuddies-member-session", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+  });
 
   // ---------- small utils ----------
   const $ = (s, r = document) => r.querySelector(s);
@@ -91,6 +96,10 @@
     async resetPassword(email) {
       if (DEMO) return;
       const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); err(error);
+    },
+    async updatePassword(password) {
+      if (DEMO) return;
+      const { error } = await sb.auth.updateUser({ password }); err(error);
     },
     async signOut() { if (DEMO) { D.user = null; return; } await sb.auth.signOut(); },
     async isAdmin() {
@@ -328,6 +337,8 @@
     if (active === "catalog" || active === "bidding") sailingShip();
     refreshAuthSlot();
     auth.onChange(refreshAuthSlot);
+    // "Forgot password" email links land here with a recovery session: ask for the new password
+    if (!DEMO) sb.auth.onAuthStateChange((event) => { if (event === "PASSWORD_RECOVERY") openNewPassword(); });
   }
 
   // A small ship that sails down the right side of the screen as the page scrolls:
@@ -368,13 +379,17 @@
   async function refreshAuthSlot() {
     const slot = $("#authSlot"); if (!slot) return;
     const u = await auth.user();
-    if (u) {
+    if (AREA === "admin") {
+      // The admin page has its own login form; the header only shows who is signed in as admin.
+      slot.innerHTML = u ? `<button class="user-chip admin-chip" id="signOutBtn" title="Sign out of admin">🔑 ${esc(u.email.split("@")[0])} · Sign out</button>` : "";
+    } else if (u) {
       slot.innerHTML = `<button class="user-chip" id="signOutBtn" title="Sign out">${esc(u.email.split("@")[0])} · Sign out</button>`;
-      $("#signOutBtn").onclick = async () => { await auth.signOut(); toast("Signed out"); refreshAuthSlot(); document.dispatchEvent(new Event("auth-changed")); };
     } else {
-      slot.innerHTML = `<button id="signInBtn">Sign in</button>`;
+      slot.innerHTML = `<button id="signInBtn">Member sign in</button>`;
       $("#signInBtn").onclick = () => openAuth();
     }
+    const out = $("#signOutBtn");
+    if (out) out.onclick = async () => { await auth.signOut(); toast("Signed out"); refreshAuthSlot(); document.dispatchEvent(new Event("auth-changed")); };
   }
 
   // ---------- Modal + auth dialog ----------
@@ -393,8 +408,9 @@
 
   function openAuth(mode = "in", onDone, opts = {}) {
     const m = openModal(`<div class="modal-pad">
-      <h2>${esc(opts.title || "Ahoy! Sign in to bid")}</h2>${opts.note ? `<p style="margin:-4px 0 12px;color:var(--muted);font-weight:600">${esc(opts.note)}</p>` : ""}
-      <div class="tabs"><button class="btn sm" data-t="in">Sign in</button><button class="btn sm ghost" data-t="up">Create account</button></div>
+      <h2>${esc(opts.title || "Member sign in")}</h2>
+      <p style="margin:-4px 0 12px;color:var(--muted);font-weight:600">${esc(opts.note || "A free member account lets you bid on auctions and make offers.")}</p>
+      <div class="tabs"><button class="btn sm" data-t="in">Sign in</button><button class="btn sm ghost" data-t="up">Join (free)</button></div>
       <form id="authForm">
         <div class="field up-only"><label>Name</label><input name="name" autocomplete="name"></div>
         <div class="field up-only"><label>Mobile (for winner contact)</label><input name="phone" type="tel" placeholder="05X XXX XXXX" autocomplete="tel"></div>
@@ -408,7 +424,7 @@
       $$("[data-t]", m).forEach((b) => b.classList.toggle("ghost", b.dataset.t !== t));
       $$(".up-only", m).forEach((el) => el.classList.toggle("hidden", t !== "up"));
       $("[name=name]", m).required = t === "up";
-      $("#authSubmit", m).textContent = t === "up" ? "Create account" : "Sign in";
+      $("#authSubmit", m).textContent = t === "up" ? "Join" : "Sign in";
     };
     $$("[data-t]", m).forEach((b) => (b.onclick = () => setMode(b.dataset.t)));
     setMode(mode);
@@ -436,10 +452,27 @@
     };
   }
 
+  function openNewPassword() {
+    const m = openModal(`<div class="modal-pad">
+      <h2>Choose a new password</h2>
+      <form id="newPwForm">
+        <div class="field"><label>New password</label><input name="pw" type="password" minlength="8" required autocomplete="new-password"></div>
+        <div class="field"><label>Repeat new password</label><input name="pw2" type="password" minlength="8" required autocomplete="new-password"></div>
+        <button class="btn block" type="submit">Save password</button>
+      </form></div>`, true);
+    $("#newPwForm", m).onsubmit = async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      if (f.get("pw") !== f.get("pw2")) return toast("The passwords don't match", true);
+      try { await auth.updatePassword(f.get("pw")); closeModal(); toast("Password updated"); refreshAuthSlot(); document.dispatchEvent(new Event("auth-changed")); }
+      catch (x) { toast(x.message, true); }
+    };
+  }
+
   function waLink(text) {
     if (!C.WHATSAPP) return "";
     return `https://wa.me/${C.WHATSAPP}?text=${encodeURIComponent(text)}`;
   }
 
-  window.App = { C, DEMO, sb, $, $$, esc, money, debounce, toast, placeholder, imgOf, auth, api, admin, renderChrome, refreshAuthSlot, openModal, closeModal, openAuth, waLink };
+  window.App = { C, DEMO, AREA, sb, $, $$, esc, money, debounce, toast, placeholder, imgOf, auth, api, admin, renderChrome, refreshAuthSlot, openModal, closeModal, openAuth, waLink };
 })();

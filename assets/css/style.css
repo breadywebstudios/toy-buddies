@@ -494,6 +494,20 @@ td.actions .btn{margin-right:4px}
 }
 @media print{ .sailing-ship{display:none} }
 
+/* ===== Owner / admin login (admin.html) — deliberately different from the member pop-up ===== */
+.admin-gate{max-width:440px; margin:48px auto; padding:30px 30px 24px; border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy)}
+.admin-gate .gate-head{display:flex; align-items:center; gap:12px; margin-bottom:14px}
+.admin-gate .gate-head img{width:56px; height:56px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 2px var(--navy)}
+.admin-gate .gate-kicker{font-weight:800; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:#fff; background:var(--navy); padding:6px 12px; border-radius:999px}
+.admin-gate h2{margin:0 0 6px}
+.admin-gate .gate-sub{margin:0 0 16px; color:var(--muted); font-weight:600}
+.admin-gate .notice{margin:0 0 14px}
+.admin-gate .notice.ok{background:rgba(47,138,78,.1); border-color:rgba(47,138,78,.45); color:var(--ok)}
+.admin-gate .notice.red{background:rgba(217,69,43,.08); border-color:rgba(217,69,43,.5); color:var(--burgundy)}
+.admin-gate .gate-links{display:flex; flex-direction:column; gap:8px; margin-top:16px; font-weight:700; font-size:.9rem}
+.admin-gate .gate-links a{color:var(--sky-deep)}
+.nav .admin-chip{color:#fff; border-color:#fff}
+
 /* ===== Smaller catalogue posters (auction posters keep their size) ===== */
 #grid.poster-grid{gap:22px 16px; grid-template-columns:repeat(auto-fill, minmax(178px, 1fr))}
 #grid .poster{padding:0 4px; border-width:40px 20px 34px; border-image-width:40px 20px 34px}

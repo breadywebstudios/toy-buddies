@@ -7,31 +7,92 @@
   const ps = { q: "", cat: "", page: 1, size: 25 };
   let prodRows = [];
 
-  // ---------- Gate ----------
-  async function gate() {
+  // ---------- Owner / admin login ----------
+  // Completely separate from member accounts:
+  //  • its own session (see APP_AREA in common.js), so a shopper's login never opens the admin
+  //  • no public sign-up: only the very first owner can create an account here, plus people the
+  //    owner has invited under Users → Add a site admin
+  //  • nobody ever needs to open the database to get access
+  const GATE = {
+    setup:  { title: "Set up the owner account", sub: "This store has no owner yet. Create the owner account to start managing figures, auctions and users.", btn: "Create owner account" },
+    login:  { title: "Owner & admin sign in",    sub: "For the store owner and staff only. Shoppers sign in from the shop.",                                    btn: "Sign in" },
+    invite: { title: "Create your admin account", sub: "Use the exact email address the owner invited. It becomes an admin account automatically.",            btn: "Create admin account" },
+  };
+
+  async function gate(denyMsg) {
     const u = await auth.user();
-    const ok = u && (await auth.isAdmin());
-    $("#gate").classList.toggle("hidden", !!ok);
-    $("#app").classList.toggle("hidden", !ok);
-    if (!u) { $("#gateMsg").textContent = DEMO ? "Demo mode: sign in with any email to explore the admin." : "Sign in with your admin account to manage the catalogue and users."; $("#gateBtn").classList.remove("hidden"); $("#gateOut")?.remove(); }
-    else if (!ok) {
-      const first = !(await admin.hasAdmins().catch(() => true));
-      $("#gateMsg").innerHTML = first
-        ? `Signed in as <b>${esc(u.email)}</b>.<br>This store has no admin yet — claim owner access to start managing it.`
-        : `Signed in as <b>${esc(u.email)}</b>, but this account doesn't have admin access yet.<br><small>Ask an existing admin to add your email under <b>Users → Add a site admin</b>.</small>`;
-      if (first && !$("#claimBtn")) {
-        const c = document.createElement("button"); c.id = "claimBtn"; c.className = "btn"; c.textContent = "Claim owner access";
-        c.onclick = async () => { c.disabled = true; try { await admin.claimFirstAdmin(); toast("You're now the store admin"); c.remove(); gate(); } catch (e) { toast(e.message, true); c.disabled = false; } };
-        $("#gate").appendChild(c);
+    let ok = false;
+    if (u) {
+      ok = await auth.isAdmin();
+      // First ever sign-in on a brand-new store: that account becomes the owner.
+      if (!ok && !(await admin.hasAdmins().catch(() => true))) {
+        try { await admin.claimFirstAdmin(); ok = true; toast("Welcome! You're the store owner."); } catch (e) { /* someone else claimed it first */ }
       }
-      $("#gateBtn").classList.add("hidden");
-      if (!$("#gateOut")) { const b = document.createElement("button"); b.id = "gateOut"; b.className = "btn ghost"; b.textContent = "Sign in with another account"; b.onclick = async () => { await auth.signOut(); App.refreshAuthSlot(); gate(); }; $("#gate").appendChild(b); }
-    } else { $("#gateOut")?.remove(); }
-    if (ok || !u) $("#claimBtn")?.remove();
-    if (ok) { await loadCats(); showTab(location.hash.slice(1) || "dash"); }
+      if (!ok) {
+        await auth.signOut(); App.refreshAuthSlot();
+        return showGate("login", typeof denyMsg === "string" ? denyMsg : `${u.email} doesn't have admin access. Members sign in from the shop, not here.`, "red");
+      }
+    }
+    if (!ok) return showGate();
+    $("#gate").classList.add("hidden");
+    $("#app").classList.remove("hidden");
+    App.refreshAuthSlot();
+    await loadCats(); showTab(location.hash.slice(1) || "dash");
   }
-  $("#gateBtn").onclick = () => openAuth("in", gate, { title: "Admin sign in", note: "Use the email and password of the store admin account." });
-  document.addEventListener("auth-changed", gate);
+
+  async function showGate(mode, msg = "", kind = "ok") {
+    $("#app").classList.add("hidden");
+    const g = $("#gate"); g.classList.remove("hidden");
+    if (!mode) mode = (await admin.hasAdmins().catch(() => true)) ? "login" : "setup";
+    const t = GATE[mode], isNew = mode !== "login";
+    g.innerHTML = `
+      <div class="gate-head"><img src="assets/img/logo-180.png" alt="" width="64" height="64"><span class="gate-kicker">🔒 Store admin</span></div>
+      <h2>${t.title}</h2>
+      <p class="gate-sub">${t.sub}</p>
+      ${DEMO ? `<div class="notice">Demo mode: any email and password will open the admin.</div>` : ""}
+      ${msg ? `<div class="notice ${kind === "red" ? "red" : "ok"}">${esc(msg)}</div>` : ""}
+      <form id="gateForm">
+        ${isNew ? `<div class="field"><label for="gName">Your name</label><input id="gName" name="name" required autocomplete="name"></div>` : ""}
+        <div class="field"><label for="gEmail">Email</label><input id="gEmail" name="email" type="email" required autocomplete="username"></div>
+        <div class="field"><label for="gPw">Password</label><input id="gPw" name="password" type="password" ${isNew ? 'minlength="8"' : ""} required autocomplete="${isNew ? "new-password" : "current-password"}"></div>
+        ${isNew ? `<div class="field"><label for="gPw2">Repeat password</label><input id="gPw2" name="password2" type="password" minlength="8" required autocomplete="new-password"></div>` : ""}
+        <button class="btn navy block" type="submit">${t.btn}</button>
+      </form>
+      <div class="gate-links">
+        ${mode === "login" ? `<a href="#" data-go="forgot">Forgot password?</a><a href="#" data-go="invite">Invited by the owner? Create your admin account</a>` : ""}
+        ${mode === "invite" ? `<a href="#" data-go="login">Already have an admin account? Sign in</a>` : ""}
+        ${mode === "setup" ? `<a href="#" data-go="login">Owner account already created? Sign in</a>` : ""}
+        <a href="index.html">← Back to the shop</a>
+      </div>`;
+
+    $$("[data-go]", g).forEach((a) => (a.onclick = async (e) => {
+      e.preventDefault();
+      if (a.dataset.go !== "forgot") return showGate(a.dataset.go);
+      const email = $("#gEmail").value.trim();
+      if (!email) return toast("Type your email first", true);
+      try { await auth.resetPassword(email); toast("Password reset link sent — check your email"); } catch (x) { toast(x.message, true); }
+    }));
+
+    $("#gateForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target), btn = $("button[type=submit]", e.target);
+      const email = f.get("email").trim(), pw = f.get("password");
+      if (isNew && pw !== f.get("password2")) return toast("The passwords don't match", true);
+      btn.disabled = true;
+      try {
+        if (mode === "login") { await auth.signIn(email, pw); return await gate(); }
+        const r = await auth.signUp(email, pw, f.get("name").trim(), "");
+        if (!DEMO && !r?.session) {
+          return showGate("login", `Almost done — we emailed a confirmation link to ${email}. Click it, then sign in here.`);
+        }
+        await gate(mode === "invite"
+          ? `${email} hasn't been invited as an admin. Ask the owner to add it under Users → Add a site admin, then sign in here.`
+          : undefined);
+      } catch (x) { toast(x.message, true); }
+      finally { btn.disabled = false; }
+    };
+  }
+  document.addEventListener("auth-changed", () => gate());
 
   // ---------- Tabs ----------
   function showTab(t) {
@@ -328,7 +389,7 @@
     if (!confirm(`Give ${email} full admin access?\nThey'll be able to manage figures, auctions, offers and users.`)) return;
     try {
       const r = await admin.addAdminByEmail(email);
-      toast(r === "added" ? `${email} is now an admin` : `Saved — ${email} becomes admin when they sign up`);
+      toast(r === "added" ? `${email} is now an admin` : `Invited — send ${email} this admin page to create their admin account`);
       $("#adminEmail").value = ""; loadUsers();
     } catch (x) { toast(x.message.replace(/^.*?:\s*/, ""), true); }
   };

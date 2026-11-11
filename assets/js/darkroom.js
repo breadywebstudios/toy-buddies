@@ -1,5 +1,5 @@
 /* =====================================================================
-   Bready Darkroom — the one photo studio for every upload on Toy Buddies
+   Bready Darkroom - the one photo studio for every upload on Toy Buddies
    (figure photos in the catalogue, gallery photos, and re-editing photos
    that are already uploaded).
 
@@ -20,7 +20,7 @@ export const NO_LOOK = { warmth: 0, bright: 0, vibrance: 0 };
 // Output sizes per kind of upload (longest side + file-size budget).
 export const DARKROOM = {
   // Figure photos show in the 4:3 wanted-poster frame, so the crop is locked to 4:3.
-  figure:  { out: { max: 1400, target: 300 * 1024 }, aspect: 4 / 3, lockAspect: "4:3 — the shape of the wanted-poster frame", look: TOY_LOOK },
+  figure:  { out: { max: 1400, target: 300 * 1024 }, aspect: 4 / 3, lockAspect: "4:3 \u2014 the shape of the wanted-poster frame", look: TOY_LOOK },
   // Gallery photos keep any shape; they're already edited, so no extra colour by default.
   gallery: { out: { max: 1400, target: 220 * 1024 }, aspect: "orig", look: NO_LOOK },
 };

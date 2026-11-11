@@ -311,10 +311,10 @@
   };
 
   // ---------- Gallery ----------
-  // Photos live in Storage (figures/gallery/…); their order and captions live in a small list file
+  // Photos live in Storage (figures/gallery/...); their order and captions live in a small list file
   // next to them (figures/gallery/gallery.json). No database table or SQL is needed.
   const GALLERY_LIST = "gallery/gallery.json";
-  const GALLERY_OUT = { max: 1400, target: 220 * 1024 };   // ~220 KB each: 270 photos ≈ 60 MB instead of ~380 MB
+  const GALLERY_OUT = { max: 1400, target: 220 * 1024 };   // ~220 KB each: 270 photos ~ 60 MB instead of ~380 MB
   const NEUTRAL_LOOK = { warmth: 0, bright: 0, vibrance: 0 }; // gallery photos are already edited: don't re-warm them
   const gallery = {
     OUT: GALLERY_OUT, LOOK: NEUTRAL_LOOK,
@@ -364,13 +364,13 @@
     if (DEMO) {
       const n = document.createElement("div");
       n.className = "container";
-      n.innerHTML = `<div class="notice">Demo mode — showing sample figures. Add your Supabase URL and key in <code>config.js</code> to go live.</div>`;
+      n.innerHTML = `<div class="notice">Demo mode \u2014 showing sample figures. Add your Supabase URL and key in <code>config.js</code> to go live.</div>`;
       head.after(n);
     }
     const foot = document.createElement("footer");
     foot.className = "site-footer";
     foot.innerHTML = `<div class="container">
-      <span>© ${new Date().getFullYear()} ${esc(C.STORE_NAME || "")} · ${esc(C.STORE_TAGLINE || "")} · <a class="admin-link" href="admin.html" target="_blank" rel="nofollow noopener">Admin</a></span>
+      <span>\u00A9 ${new Date().getFullYear()} ${esc(C.STORE_NAME || "")} \u00B7 ${esc(C.STORE_TAGLINE || "")} \u00B7 <a class="admin-link" href="admin.html" target="_blank" rel="nofollow noopener">Admin</a></span>
       <span>Powered by <a href="https://breadywebstudio.vercel.app" target="_blank" rel="noopener">Bready Web Studios</a></span></div>`;
     document.body.appendChild(foot);
     if (active === "catalog" || active === "bidding" || active === "gallery") sailingShip();
@@ -421,7 +421,7 @@
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const header = $(".site-header"), heroBox = $(".hero"), heroIn = $(".hero .container");
     const bar = document.createElement("div"); bar.className = "scroll-progress"; bar.setAttribute("aria-hidden", "true");
-    const up = document.createElement("button"); up.type = "button"; up.className = "to-top"; up.setAttribute("aria-label", "Back to top"); up.textContent = "↑";
+    const up = document.createElement("button"); up.type = "button"; up.className = "to-top"; up.setAttribute("aria-label", "Back to top"); up.textContent = "\u2191";
     up.onclick = () => scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
     document.body.append(bar, up);
 
@@ -475,9 +475,9 @@
     const u = await auth.user();
     if (AREA === "admin") {
       // The admin page has its own login form; the header only shows who is signed in as admin.
-      slot.innerHTML = u ? `<button class="user-chip admin-chip" id="signOutBtn" title="Sign out of admin">🔑 ${esc(u.email.split("@")[0])} · Sign out</button>` : "";
+      slot.innerHTML = u ? `<button class="user-chip admin-chip" id="signOutBtn" title="Sign out of admin">\uD83D\uDD11 ${esc(u.email.split("@")[0])} \u00B7 Sign out</button>` : "";
     } else if (u) {
-      slot.innerHTML = `<button class="user-chip" id="signOutBtn" title="Sign out">${esc(u.email.split("@")[0])} · Sign out</button>`;
+      slot.innerHTML = `<button class="user-chip" id="signOutBtn" title="Sign out">${esc(u.email.split("@")[0])} \u00B7 Sign out</button>`;
     } else {
       slot.innerHTML = `<button id="signInBtn">Member sign in</button>`;
       $("#signInBtn").onclick = () => openAuth();
@@ -491,7 +491,7 @@
     closeModal();
     const m = document.createElement("div");
     m.className = "modal"; m.id = "modal";
-    m.innerHTML = `<div class="modal-box ${narrow ? "narrow" : ""}" role="dialog" aria-modal="true"><button class="modal-close" aria-label="Close">×</button>${html}</div>`;
+    m.innerHTML = `<div class="modal-box ${narrow ? "narrow" : ""}" role="dialog" aria-modal="true"><button class="modal-close" aria-label="Close">\u00D7</button>${html}</div>`;
     m.addEventListener("click", (e) => { if (e.target === m || e.target.classList.contains("modal-close")) closeModal(); });
     document.body.appendChild(m);
     document.addEventListener("keydown", escClose);

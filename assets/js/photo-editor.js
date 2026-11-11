@@ -1,10 +1,10 @@
 /* =====================================================================
-   Photo editor — drop-in, no dependencies (vanilla JS + canvas, ES module)
+   Photo editor - drop-in, no dependencies (vanilla JS + canvas, ES module)
    Origin: Feby's Kitchen admin (febys repo, script.js), Nov 2026.
 
    Features: crop with aspect presets (Square / 4:3 / 3:4 / Original),
    drag to recentre, wheel / pinch / slider zoom (zooms towards cursor),
-   rotate 90° left/right + straighten slider (±20°, auto-trims corners),
+   rotate 90 deg left/right + straighten slider (+/-20 deg, auto-trims corners),
    warm "food photography" look (warmth / brightness / vibrance, hold to
    compare, reset), high-quality stepped downscale + light sharpening,
    WebP (JPEG fallback) quality ladder to hit a KB budget, batch mode
@@ -40,7 +40,7 @@ function injectCss(){
 }
 
 /* ============================================================
-   PHOTOS — editor (crop / recentre / zoom), warm "food look",
+   PHOTOS - editor (crop / recentre / zoom), warm "food look",
    and size optimisation before anything is stored.
    ============================================================ */
 // Longest side in px and the file-size budget per kind of photo.
@@ -126,7 +126,7 @@ function sharpen(ctx, w, h, amount){
   im.data.set(o); ctx.putImageData(im, 0, 0);
 }
 
-// Crop → resize → look → sharpen → WebP (JPEG fallback), best quality that fits the budget.
+// Crop -> resize -> look -> sharpen -> WebP (JPEG fallback), best quality that fits the budget.
 export async function renderPhoto(bm, crop, look, out){
   const sc = Math.min(1, out.max/Math.max(crop.sw, crop.sh));
   const c = drawScaled(bm, crop.sx, crop.sy, crop.sw, crop.sh, crop.sw*sc, crop.sh*sc);
@@ -151,7 +151,7 @@ export async function autoProcess(file, look, kind){
   try{ return await renderPhoto(bm, { sx:0, sy:0, sw:bm.width, sh:bm.height }, look, typeof kind === "object" ? kind : PHOTO_OUT[kind]); }
   finally{ bm.close(); }
 }
-export const photoReadyNote = b => `Photo ready · ${b.w}×${b.h} px · ${Math.max(1, Math.round(b.size/1024))} KB`;
+export const photoReadyNote = b => `Photo ready \u00B7 ${b.w}\u00D7${b.h} px \u00B7 ${Math.max(1, Math.round(b.size/1024))} KB`;
 
 /* Opens the editor. Resolves { blob, look, rest } or null if cancelled.
    opts: kind ("item" | "review" | "gallery"), aspect (1 | 4/3 | 3/4 | "orig"), title, count, allowRest,
@@ -165,7 +165,7 @@ export async function photoEditor(file, opts = {}){
   const W0 = bm.width, H0 = bm.height;
   const pk = Math.min(1, 1100/Math.max(W0, H0));                 // on-screen preview resolution
   const small = drawScaled(bm, 0, 0, W0, H0, W0*pk, H0*pk);
-  // Rotation: quarter turns + fine "straighten" tilt. The working image (iw × ih) is the rotated photo
+  // Rotation: quarter turns + fine "straighten" tilt. The working image (iw x ih) is the rotated photo
   // trimmed to the largest upright rectangle inside it, so no empty corners ever appear.
   let quarter = 0, tilt = 0, iw = W0, ih = H0, base = small, view = null, vctx = null;
   const rotAngle = () => quarter*Math.PI/2 + tilt*Math.PI/180;
@@ -188,17 +188,17 @@ export async function photoEditor(file, opts = {}){
   const root = document.createElement("div");
   root.className = "pe-root";
   root.innerHTML = `<div class="overlay"><div class="modal pe" role="dialog" aria-modal="true" aria-label="Edit photo">
-    <div class="mh"><h3>${esc(opts.heading || "Edit photo")}${opts.count ? ` <small>${esc(opts.count)}</small>` : ""}</h3><button class="x" data-pe="cancel" aria-label="Close">×</button></div>
+    <div class="mh"><h3>${esc(opts.heading || "Edit photo")}${opts.count ? ` <small>${esc(opts.count)}</small>` : ""}</h3><button class="x" data-pe="cancel" aria-label="Close">\u00D7</button></div>
     <div class="mb">
       ${opts.title ? `<div class="pe-for">${esc(opts.title)}</div>` : ""}
       ${opts.lockAspect ? `<div class="pe-lock">${esc(opts.lockAspect)}</div>` : `<div class="seg" id="peAspect">${ASPECTS.map(([l, a]) => `<button type="button" data-a="${a}">${l}</button>`).join("")}</div>`}
       <div class="pe-stage" id="peStage"><div class="pe-frame" id="peFrame"><div class="pe-grid"></div></div></div>
-      <div class="pe-hint">Drag the photo to recentre · scroll or pinch to zoom (below 1× fits the whole photo on a soft background) · use Straighten to fix a tilted angle</div>
-      <div class="pe-row"><span>Zoom</span><input type="range" id="peZoom" min="0.5" max="5" step="0.01" value="1" aria-label="Zoom"><output id="peZoomOut">1.0×</output></div>
-      <div class="pe-row"><span>Straighten</span><input type="range" id="peTilt" min="-20" max="20" step="0.1" value="0" aria-label="Straighten angle"><output id="peTiltOut">0°</output></div>
+      <div class="pe-hint">Drag the photo to recentre \u00B7 scroll or pinch to zoom (below 1\u00D7 fits the whole photo on a soft background) \u00B7 use Straighten to fix a tilted angle</div>
+      <div class="pe-row"><span>Zoom</span><input type="range" id="peZoom" min="0.5" max="5" step="0.01" value="1" aria-label="Zoom"><output id="peZoomOut">1.0\u00D7</output></div>
+      <div class="pe-row"><span>Straighten</span><input type="range" id="peTilt" min="-20" max="20" step="0.1" value="0" aria-label="Straighten angle"><output id="peTiltOut">0\u00B0</output></div>
       <div class="pe-rot">
-        <button type="button" class="btn ghost sm" id="peRotL" title="Rotate 90° left">⟲ Rotate left</button>
-        <button type="button" class="btn ghost sm" id="peRotR" title="Rotate 90° right">Rotate right ⟳</button>
+        <button type="button" class="btn ghost sm" id="peRotL" title="Rotate 90\u00B0 left">\u27F2 Rotate left</button>
+        <button type="button" class="btn ghost sm" id="peRotR" title="Rotate 90\u00B0 right">Rotate right \u27F3</button>
         <button type="button" class="btn ghost sm" id="peLevel" title="Undo the straighten angle">Level</button>
       </div>
       <div class="pe-look">
@@ -229,7 +229,7 @@ export async function photoEditor(file, opts = {}){
     cx = keepCentre ? fx*iw : iw/2; cy = keepCentre ? fy*ih : ih/2;
   };
   rebuild(false);
-  // background shown around the photo when zoomed out below 1×
+  // background shown around the photo when zoomed out below 1x
   const bg = newCanvas(2, 2), bgctx = bg.getContext("2d");
   bg.style.width = "100%"; bg.style.height = "100%"; bg.style.visibility = "hidden";
   frame.prepend(bg);
@@ -245,7 +245,10 @@ export async function photoEditor(file, opts = {}){
     return { sx:cx - cw/2, sy:cy - ch/2, sw:cw, sh:ch };
   };
   const layout = () => {
-    const A = ar(), maxW = Math.max(200, stage.clientWidth - 28), maxH = Math.min(440, Math.max(220, innerHeight*.42));
+    // A page can allow a taller preview (e.g. photo beside the controls) with the CSS variable --pe-stage-max on .pe-stage.
+    const cssMax = parseFloat(getComputedStyle(stage).getPropertyValue("--pe-stage-max"));
+    const A = ar(), maxW = Math.max(200, stage.clientWidth - 28),
+      maxH = cssMax > 0 ? Math.max(220, Math.min(cssMax, innerHeight - 190)) : Math.min(440, Math.max(220, innerHeight*.42));
     fw = maxW; fh = fw/A; if(fh > maxH){ fh = maxH; fw = fh*A; }
     frame.style.width = fw + "px"; frame.style.height = fh + "px";
     if(bg.width !== Math.round(fw) || bg.height !== Math.round(fh)){ bg.width = Math.round(fw); bg.height = Math.round(fh); paint(); }
@@ -256,11 +259,11 @@ export async function photoEditor(file, opts = {}){
     const c = crop(), s = fw/c.sw;
     view.style.width = iw*s + "px"; view.style.height = ih*s + "px";
     view.style.transform = `translate(${-c.sx*s}px, ${-c.sy*s}px)`;
-    zoom.value = z; $("#peZoomOut").textContent = z.toFixed(1) + "×";
+    zoom.value = z; $("#peZoomOut").textContent = z.toFixed(1) + "\u00D7";
     bg.style.visibility = z < 1 ? "visible" : "hidden";
     const k = Math.min(1, out.max/Math.max(c.sw, c.sh)), rw = Math.round(c.sw*k), rh = Math.round(c.sh*k), soft = Math.max(rw, rh) < 700;
     const info = $$("#peInfo");
-    info.textContent = `Saved as ${rw}×${rh} px, compressed to about ${Math.round(out.target/1024)} KB or less.` + (soft ? " Zoomed in a lot — the photo may look soft." : "");
+    info.textContent = `Saved as ${rw}\u00D7${rh} px, compressed to about ${Math.round(out.target/1024)} KB or less.` + (soft ? " Zoomed in a lot \u2014 the photo may look soft." : "");
     info.classList.toggle("warn", soft);
   };
   let raf = 0;
@@ -299,7 +302,7 @@ export async function photoEditor(file, opts = {}){
   const tiltIn = $$("#peTilt");
   const setTilt = v => {
     tilt = Math.round(Math.min(20, Math.max(-20, v))*10)/10;
-    tiltIn.value = tilt; $$("#peTiltOut").textContent = (tilt > 0 ? "+" : "") + tilt + "°";
+    tiltIn.value = tilt; $$("#peTiltOut").textContent = (tilt > 0 ? "+" : "") + tilt + "\u00B0";
     rebuild(); layout(); paint();
   };
   tiltIn.oninput = () => { frame.classList.add("fine"); setTilt(+tiltIn.value); };
@@ -328,7 +331,7 @@ export async function photoEditor(file, opts = {}){
     root.querySelectorAll('[data-pe="cancel"]').forEach(b => b.onclick = () => finish(null));
     root.querySelectorAll('[data-pe="save"],[data-pe="rest"]').forEach(b => b.onclick = async () => {
       root.querySelectorAll("[data-pe]").forEach(x => x.disabled = true);
-      const label = b.textContent; b.textContent = "Optimising…";
+      const label = b.textContent; b.textContent = "Optimising\u2026";
       try{ let src = rotated() ? drawRotated(bm, 1) : bm, c = crop();
         if(z < 1){   // zoomed out: place the photo on its blurred background at the output size
           const k = Math.min(1, out.max/Math.max(c.sw, c.sh)), comp = newCanvas(c.sw*k, c.sh*k), g = comp.getContext("2d");

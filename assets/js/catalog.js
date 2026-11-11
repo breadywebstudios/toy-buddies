@@ -1,7 +1,7 @@
 (function () {
   const { C, $, esc, money, debounce, toast, imgOf, api, renderChrome, openModal, waLink } = App;
   renderChrome("catalog");
-  document.title = `${C.STORE_NAME} — Anime Figures`;
+  document.title = `${C.STORE_NAME} \u2014 Anime Figures`;
 
   const params = new URLSearchParams(location.search);
   const state = { q: params.get("q") || "", cat: params.get("cat") || "", sort: params.get("sort") || "new", page: +params.get("page") || 1 };
@@ -32,13 +32,13 @@
 
   async function load() {
     syncUrl();
-    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">Loading figures…</div>`;
+    $("#grid").innerHTML = `<div class="empty" style="grid-column:1/-1">Loading figures\u2026</div>`;
     try {
       const size = C.PAGE_SIZE || 24;
       const { rows, count } = await api.products({ ...state, size });
       lastRows = rows;
       const start = count ? (state.page - 1) * size + 1 : 0;
-      $("#meta").textContent = count ? `Showing ${start}–${start + rows.length - 1} of ${count} figures` : "";
+      $("#meta").textContent = count ? `Showing ${start}\u2013${start + rows.length - 1} of ${count} figures` : "";
       $("#grid").innerHTML = rows.length ? rows.map(card).join("") :
         `<div class="empty" style="grid-column:1/-1">No figures found. Try another search or category.</div>`;
       $("#grid").querySelectorAll(".poster").forEach((el) => (el.onclick = () => openDetail(lastRows[+el.dataset.i], +el.dataset.i)));
@@ -69,12 +69,12 @@
     if (pages <= 1) { $("#pager").innerHTML = ""; return; }
     const p = state.page, nums = new Set([1, pages, p - 1, p, p + 1].filter((n) => n >= 1 && n <= pages));
     const list = [...nums].sort((a, b) => a - b);
-    let html = `<button data-p="${p - 1}" ${p === 1 ? "disabled" : ""}>‹</button>`;
+    let html = `<button data-p="${p - 1}" ${p === 1 ? "disabled" : ""}>\u2039</button>`;
     list.forEach((n, i) => {
-      if (i && n - list[i - 1] > 1) html += `<button disabled>…</button>`;
+      if (i && n - list[i - 1] > 1) html += `<button disabled>\u2026</button>`;
       html += `<button data-p="${n}" class="${n === p ? "active" : ""}">${n}</button>`;
     });
-    html += `<button data-p="${p + 1}" ${p === pages ? "disabled" : ""}>›</button>`;
+    html += `<button data-p="${p + 1}" ${p === pages ? "disabled" : ""}>\u203A</button>`;
     $("#pager").innerHTML = html;
     $("#pager").querySelectorAll("button[data-p]").forEach((b) => (b.onclick = () => {
       state.page = +b.dataset.p; load(); $("#catalog").scrollIntoView({ behavior: "smooth" });

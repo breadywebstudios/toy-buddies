@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ===== Toy Buddies — Totoy theme =====
    Taken from the Facebook page and the Totoy logo: sky blue, sunny gold and orange,
    chunky rounded lettering with a navy outline, sticker-style buttons and a friendly voice.
@@ -648,15 +649,35 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 .photo-actions{flex:1; min-width:200px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
 .photo-actions small{flex-basis:100%; color:var(--muted); font-weight:600; line-height:1.4}
 
-/* ===== Bready Darkroom (the photo editor) in Toy Buddies colours ===== */
-.pe-root{--pe-ink:#0B1627; --pe-paper:#FFF8EA; --pe-line:#E3E7EE; --pe-muted:#5B6474; --pe-accent:#EE8A2B; --pe-accent-soft:#FCEBC8; --pe-warn:#D06F17; font-family:var(--font-body)}
-.pe-root .modal{border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy), 0 40px 80px -30px rgba(0,0,0,.8)}
-.pe-root .mh{background:var(--navy); color:#fff; border-bottom:4px solid var(--gold)}
-.pe-root .mh h3{font-family:var(--font-display); font-weight:400; font-size:24px; color:var(--gold); letter-spacing:.02em}
-.pe-root .mh h3::before{content:"🎞️ "}
-.pe-root .mh h3 small{color:rgba(255,255,255,.75)}
-.pe-root .x{color:#fff}
-.pe-root .btn{font-weight:800}
+/* ===== Bready Darkroom (the photo editor) in Toy Buddies colours =====
+   "body .pe-root" outranks the editor's own styles, which load later. */
+body .pe-root{--pe-ink:#0B1627; --pe-paper:#FFF8EA; --pe-line:#E3E7EE; --pe-muted:#5B6474; --pe-accent:#EE8A2B; --pe-accent-soft:#FCEBC8; --pe-warn:#D06F17; font-family:var(--font-body)}
+body .pe-root .modal{border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy), 0 40px 80px -30px rgba(0,0,0,.8)}
+body .pe-root .mh{background:var(--navy); color:#fff; border-bottom:4px solid var(--gold)}
+body .pe-root .mh h3{font-family:var(--font-display); font-weight:400; font-size:24px; color:var(--gold); letter-spacing:.02em}
+body .pe-root .mh h3::before{content:"🎞️ "}
+body .pe-root .mh h3 small{color:rgba(255,255,255,.75)}
+body .pe-root .x{color:#fff}
+body .pe-root .btn{font-weight:800}
+body .pe-root .pe-row input[type=range]{accent-color:var(--orange)}
+body .pe-root .seg button.on{border-color:var(--navy); background:var(--gold); font-weight:800}
+
+/* Photo and controls side by side, so you see every change as you make it.
+   The photo stays put while the controls column scrolls. */
+@media (min-width:900px){
+  body .pe-root .modal.pe{width:min(1180px, 100%)}
+  body .pe-root .pe .mb{
+    display:grid; grid-template-columns:minmax(0, 1.55fr) minmax(310px, 1fr);
+    column-gap:22px; row-gap:12px; align-items:start; align-content:start;
+  }
+  body .pe-root .pe .mb > *{grid-column:2; min-width:0}
+  body .pe-root .pe .mb > .pe-stage{
+    grid-column:1; grid-row:1 / span 12; position:sticky; top:0; align-self:stretch;
+    min-height:min(620px, calc(100vh - 200px)); --pe-stage-max:620;
+  }
+  body .pe-root .pe .pe-hint{text-align:left; margin-top:0}
+  body .pe-root .pe .pe-rot{justify-content:flex-start; margin-top:0}
+}
 
 /* ===== Owner / admin login (admin.html) — deliberately different from the member pop-up ===== */
 .admin-gate{max-width:440px; margin:48px auto; padding:30px 30px 24px; border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy)}

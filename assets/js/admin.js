@@ -1,7 +1,7 @@
 (function () {
   const { C, DEMO, $, $$, esc, money, debounce, toast, imgOf, auth, api, admin, renderChrome, openModal, closeModal, openAuth, waLink } = App;
   renderChrome("admin");
-  document.title = `Admin — ${C.STORE_NAME}`;
+  document.title = `Admin \u2014 ${C.STORE_NAME}`;
 
   let categories = [];
   const ps = { q: "", cat: "", page: 1, size: 25 };
@@ -9,10 +9,10 @@
 
   // ---------- Owner / admin login ----------
   // Completely separate from member accounts:
-  //  • its own session (see APP_AREA in common.js), so a shopper's login never opens the admin
-  //  • no public sign-up: only the very first owner can create an account here, plus people the
-  //    owner has invited under Users → Add a site admin
-  //  • nobody ever needs to open the database to get access
+  //  - its own session (see APP_AREA in common.js), so a shopper's login never opens the admin
+  //  - no public sign-up: only the very first owner can create an account here, plus people the
+  //    owner has invited under Users -> Add a site admin
+  //  - nobody ever needs to open the database to get access
   const GATE = {
     setup:  { title: "Set up the owner account", sub: "This store has no owner yet. Create the owner account to start managing figures, auctions and users.", btn: "Create owner account" },
     login:  { title: "Owner & admin sign in",    sub: "For the store owner and staff only. Shoppers sign in from the shop.",                                    btn: "Sign in" },
@@ -46,7 +46,7 @@
     if (!mode) mode = (await admin.hasAdmins().catch(() => true)) ? "login" : "setup";
     const t = GATE[mode], isNew = mode !== "login";
     g.innerHTML = `
-      <div class="gate-head"><img src="assets/img/logo-180.png" alt="" width="64" height="64"><span class="gate-kicker">🔒 Store admin</span></div>
+      <div class="gate-head"><img src="assets/img/logo-180.png" alt="" width="64" height="64"><span class="gate-kicker">\uD83D\uDD12 Store admin</span></div>
       <h2>${t.title}</h2>
       <p class="gate-sub">${t.sub}</p>
       ${DEMO ? `<div class="notice">Demo mode: any email and password will open the admin.</div>` : ""}
@@ -62,7 +62,7 @@
         ${mode === "login" ? `<a href="#" data-go="forgot">Forgot password?</a><a href="#" data-go="invite">Invited by the owner? Create your admin account</a>` : ""}
         ${mode === "invite" ? `<a href="#" data-go="login">Already have an admin account? Sign in</a>` : ""}
         ${mode === "setup" ? `<a href="#" data-go="login">Owner account already created? Sign in</a>` : ""}
-        <a href="index.html">← Back to the shop</a>
+        <a href="index.html">\u2190 Back to the shop</a>
       </div>`;
 
     $$("[data-go]", g).forEach((a) => (a.onclick = async (e) => {
@@ -70,7 +70,7 @@
       if (a.dataset.go !== "forgot") return showGate(a.dataset.go);
       const email = $("#gEmail").value.trim();
       if (!email) return toast("Type your email first", true);
-      try { await auth.resetPassword(email); toast("Password reset link sent — check your email"); } catch (x) { toast(x.message, true); }
+      try { await auth.resetPassword(email); toast("Password reset link sent \u2014 check your email"); } catch (x) { toast(x.message, true); }
     }));
 
     $("#gateForm").onsubmit = async (e) => {
@@ -83,10 +83,10 @@
         if (mode === "login") { await auth.signIn(email, pw); return await gate(); }
         const r = await auth.signUp(email, pw, f.get("name").trim(), "");
         if (!DEMO && !r?.session) {
-          return showGate("login", `Almost done — we emailed a confirmation link to ${email}. Click it, then sign in here.`);
+          return showGate("login", `Almost done \u2014 we emailed a confirmation link to ${email}. Click it, then sign in here.`);
         }
         await gate(mode === "invite"
-          ? `${email} hasn't been invited as an admin. Ask the owner to add it under Users → Add a site admin, then sign in here.`
+          ? `${email} hasn't been invited as an admin. Ask the owner to add it under Users \u2192 Add a site admin, then sign in here.`
           : undefined);
       } catch (x) { toast(x.message, true); }
       finally { btn.disabled = false; }
@@ -131,7 +131,7 @@
       <td>${c.sort_order}</td><td><b>${esc(c.name)}</b>${c.description ? `<br><small style="color:var(--muted)">${esc(c.description)}</small>` : ""}</td>
       <td>${counts[c.id] || 0}</td>
       <td class="actions"><button class="btn sm navy" data-ce="${esc(c.id)}">Edit</button><button class="btn sm ghost" data-cd="${esc(c.id)}">Delete</button></td></tr>`).join("")
-      : `<tr><td colspan="4" class="empty">No categories yet — add your first one above.</td></tr>`;
+      : `<tr><td colspan="4" class="empty">No categories yet \u2014 add your first one above.</td></tr>`;
     $$("[data-ce]").forEach((b) => (b.onclick = () => {
       const c = categories.find((x) => x.id === b.dataset.ce), f = $("#catForm");
       f.id.value = c.id; f.name.value = c.name; f.sort_order.value = c.sort_order; f.description.value = c.description || "";
@@ -157,11 +157,11 @@
     try {
       const { rows, count } = await api.products({ q: ps.q, cat: ps.cat, page: ps.page, size: ps.size, sort: "new", admin: true });
       prodRows = rows;
-      const catName = (id) => categories.find((c) => c.id === id)?.name || "—";
+      const catName = (id) => categories.find((c) => c.id === id)?.name || "\u2014";
       $("#prodRows").innerHTML = rows.length ? rows.map((p, i) => `<tr>
         <td><img class="thumb" src="${esc(imgOf(p, i))}" alt=""></td>
-        <td><b>${esc(p.name)}</b><br><small style="color:var(--muted)">${esc([p.series, p.brand, p.scale].filter(Boolean).join(" · "))}</small></td>
-        <td>${esc(catName(p.category_id))}</td><td>${p.price != null ? money(p.price) : "—"}</td>
+        <td><b>${esc(p.name)}</b><br><small style="color:var(--muted)">${esc([p.series, p.brand, p.scale].filter(Boolean).join(" \u00B7 "))}</small></td>
+        <td>${esc(catName(p.category_id))}</td><td>${p.price != null ? money(p.price) : "\u2014"}</td>
         <td>${p.stock}</td>
         <td>${p.is_published ? `<span class="pill ok">Visible</span>` : `<span class="pill no">Hidden</span>`} ${p.accept_offers ? `<span class="pill gold">Offers</span>` : ""}</td>
         <td class="actions"><button class="btn sm navy" data-pe="${i}">Edit</button><button class="btn sm gold" data-pa="${i}">Auction</button><button class="btn sm ghost" data-pd="${i}">Delete</button></td></tr>`).join("")
@@ -174,7 +174,7 @@
         try { await admin.deleteProduct(p.id); toast("Figure deleted"); loadProds(); } catch (e) { toast(e.message, true); }
       }));
       const pages = Math.ceil(count / ps.size);
-      $("#ppager").innerHTML = pages > 1 ? `<button ${ps.page === 1 ? "disabled" : ""} data-p="${ps.page - 1}">‹ Prev</button><button disabled>Page ${ps.page} of ${pages} · ${count} figures</button><button ${ps.page === pages ? "disabled" : ""} data-p="${ps.page + 1}">Next ›</button>` : "";
+      $("#ppager").innerHTML = pages > 1 ? `<button ${ps.page === 1 ? "disabled" : ""} data-p="${ps.page - 1}">\u2039 Prev</button><button disabled>Page ${ps.page} of ${pages} \u00B7 ${count} figures</button><button ${ps.page === pages ? "disabled" : ""} data-p="${ps.page + 1}">Next \u203A</button>` : "";
       $$("#ppager [data-p]").forEach((b) => (b.onclick = () => { ps.page = +b.dataset.p; loadProds(); }));
     } catch (e) { toast(e.message, true); }
   }
@@ -189,22 +189,22 @@
         <div class="full"><label>Name *</label><input name="name" required value="${v("name")}"></div>
         <div><label>Anime / series</label><input name="series" value="${v("series")}"></div>
         <div><label>Brand</label><input name="brand" value="${v("brand")}"></div>
-        <div><label>Scale / line</label><input name="scale" value="${v("scale")}" placeholder="1/7, Nendoroid…"></div>
-        <div><label>Category</label><select name="category_id"><option value="">— None —</option>${categories.map((c) => `<option value="${esc(c.id)}" ${p?.category_id === c.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
+        <div><label>Scale / line</label><input name="scale" value="${v("scale")}" placeholder="1/7, Nendoroid\u2026"></div>
+        <div><label>Category</label><select name="category_id"><option value="">\u2014 None \u2014</option>${categories.map((c) => `<option value="${esc(c.id)}" ${p?.category_id === c.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
         <div><label>Condition</label><select name="condition">${["New - Sealed", "New - Opened", "Pre-owned - Boxed", "Pre-owned - Loose"].map((c) => `<option ${p?.condition === c ? "selected" : ""}>${c}</option>`).join("")}</select></div>
-        <div><label>Price (AED) — blank = on request</label><input name="price" type="number" min="0" step="any" value="${v("price")}"></div>
+        <div><label>Price (AED) \u2014 blank = on request</label><input name="price" type="number" min="0" step="any" value="${v("price")}"></div>
         <div><label>Stock</label><input name="stock" type="number" min="0" value="${v("stock", 1)}"></div>
         <div class="full"><label>Description</label><textarea name="description" rows="3">${v("description")}</textarea></div>
         <div class="full"><label>Photo</label>
           <div class="photo-field">
             <img class="preview-img" id="prev" src="${esc(imgOf(p || { name: "New" }))}" alt="">
             <div class="photo-actions">
-              <label class="btn sm" style="margin:0">📷 Choose photo<input type="file" name="file" accept="image/*" hidden></label>
-              <button class="btn sm ghost" type="button" id="pDarkroom" ${p?.image_url ? "" : "hidden"}>✂️ Edit in Bready Darkroom</button>
+              <label class="btn sm" style="margin:0">\uD83D\uDCF7 Choose photo<input type="file" name="file" accept="image/*" hidden></label>
+              <button class="btn sm ghost" type="button" id="pDarkroom" ${p?.image_url ? "" : "hidden"}>\u2702\uFE0F Edit in Bready Darkroom</button>
               <small id="pPhotoNote">Every photo opens in <b>Bready Darkroom</b>: crop to the poster frame, straighten, fix the light. It's shrunk to save space before upload.</small>
             </div>
           </div>
-          <input name="image_url" placeholder="…or paste an image URL" value="${p?.image_url?.startsWith("data:") ? "" : v("image_url")}" style="margin-top:8px"></div>
+          <input name="image_url" placeholder="...or paste an image URL" value="${p?.image_url?.startsWith("data:") ? "" : v("image_url")}" style="margin-top:8px"></div>
         <label class="check"><input type="checkbox" name="is_published" ${p ? (p.is_published ? "checked" : "") : "checked"}> Show on website</label>
         <label class="check"><input type="checkbox" name="accept_offers" ${p?.accept_offers ? "checked" : ""}> Open to offers</label>
         <div><label>Minimum offer (AED, optional)</label><input name="min_offer" type="number" min="0" step="any" value="${v("min_offer")}"></div>
@@ -221,7 +221,7 @@
         if (!r) return false;
         edited = r.blob;
         $("#prev", m).src = URL.createObjectURL(edited);
-        $("#pPhotoNote", m).textContent = `Ready · ${edited.w}×${edited.h} px · ${Math.max(1, Math.round(edited.size / 1024))} KB — uploads when you save.`;
+        $("#pPhotoNote", m).textContent = `Ready - ${edited.w}x${edited.h} px - ${Math.max(1, Math.round(edited.size / 1024))} KB - uploads when you save.`;
         $("#pDarkroom", m).hidden = false;
         return true;
       } catch (x) { toast(x.message, true); return false; }
@@ -239,15 +239,15 @@
     $("#pCancel", m).onclick = closeModal;
     f.onsubmit = async (e) => {
       e.preventDefault();
-      const btn = $("#pSave", m); btn.disabled = true; btn.textContent = "Saving…";
+      const btn = $("#pSave", m); btn.disabled = true; btn.textContent = "Saving...";
       try {
         const file = f.file.files[0];
         if (edited) {
-          btn.textContent = "Uploading photo…";
+          btn.textContent = "Uploading photo...";
           uploaded = await admin.uploadImage(edited);   // already sized by the Darkroom
         } else if (file) {
-          if (file.size > 30 * 1024 * 1024) throw new Error("Photo is over 30 MB — please use a smaller one");
-          btn.textContent = "Optimising photo…";
+          if (file.size > 30 * 1024 * 1024) throw new Error("Photo is over 30 MB - please use a smaller one");
+          btn.textContent = "Optimising photo...";
           uploaded = await admin.uploadImage(file);
         } else if (f.image_url.value.trim()) uploaded = f.image_url.value.trim();
         const num = (x) => (x.value === "" ? null : Number(x.value));
@@ -277,19 +277,19 @@
   function renderGal() {
     const total = gal.reduce((s, g) => s + (g.size || 0), 0);
     $("#galMeta").textContent = gal.length
-      ? `${gal.length} photo${gal.length === 1 ? "" : "s"}${total ? ` · ${mb(total)} stored` : ""}`
+      ? `${gal.length} photo${gal.length === 1 ? "" : "s"}${total ? ` - ${mb(total)} stored` : ""}`
       : "No photos yet. Add some to fill the carousel.";
     $("#galGrid").innerHTML = gal.map((g, i) => `
       <figure class="gal-item" draggable="true" data-i="${i}">
         <div class="gal-thumb"><span class="gal-num">${i + 1}</span><img src="${esc(g.url)}" alt="" loading="lazy" draggable="false"></div>
         <input class="gal-cap" data-i="${i}" maxlength="120" placeholder="Caption (optional)" value="${esc(g.caption || "")}">
         <div class="gal-tools">
-          <button class="btn sm ghost" type="button" data-act="left" data-i="${i}" title="Move earlier" ${i ? "" : "disabled"}>←</button>
-          <button class="btn sm ghost" type="button" data-act="right" data-i="${i}" title="Move later" ${i < gal.length - 1 ? "" : "disabled"}>→</button>
-          <button class="btn sm ghost" type="button" data-act="edit" data-i="${i}" title="Edit in Bready Darkroom">✂️</button>
-          <button class="btn sm ghost" type="button" data-act="del" data-i="${i}" title="Delete photo">🗑</button>
+          <button class="btn sm ghost" type="button" data-act="left" data-i="${i}" title="Move earlier" ${i ? "" : "disabled"}><-</button>
+          <button class="btn sm ghost" type="button" data-act="right" data-i="${i}" title="Move later" ${i < gal.length - 1 ? "" : "disabled"}>-></button>
+          <button class="btn sm ghost" type="button" data-act="edit" data-i="${i}" title="Edit in Bready Darkroom">\u2702\uFE0F</button>
+          <button class="btn sm ghost" type="button" data-act="del" data-i="${i}" title="Delete photo">\uD83D\uDDD1</button>
         </div>
-        <small>${g.w && g.h ? `${g.w}×${g.h} · ` : ""}${kb(g.size)}</small>
+        <small>${g.w && g.h ? `${g.w}x${g.h} - ` : ""}${kb(g.size)}</small>
       </figure>`).join("");
   }
   const moveGal = (from, to) => {
@@ -300,7 +300,7 @@
 
   // Add photos: quick (auto-optimised, 3 at a time) or one by one through the Darkroom.
   async function addGalPhotos(fileList, viaDarkroom) {
-    if (galBusy) return toast("Still adding the last batch — please wait", true);
+    if (galBusy) return toast("Still adding the last batch - please wait", true);
     let files = [...fileList].filter((f) => f.type.startsWith("image/"));
     const known = new Set(gal.map((g) => g.src).filter(Boolean));
     const dupes = files.filter((f) => known.has(f.name)).length;
@@ -310,7 +310,7 @@
     galBusy = true;
     const prog = $("#galProgress"), base = gal.slice(), results = [];
     let done = 0, failed = 0, before = 0, after = 0;
-    const show = () => { prog.querySelector("i").style.width = `${Math.round((done / files.length) * 100)}%`; prog.querySelector("span").textContent = `${viaDarkroom ? "Saving" : "Optimising & uploading"} ${done} of ${files.length} — keep this tab open`; };
+    const show = () => { prog.querySelector("i").style.width = `${Math.round((done / files.length) * 100)}%`; prog.querySelector("span").textContent = `${viaDarkroom ? "Saving" : "Optimising & uploading"} ${done} of ${files.length} - keep this tab open`; };
     const sync = () => { gal = base.concat(results.filter(Boolean)); };
     const keep = async (blob, file, idx) => {
       const it = await G.upload(blob);
@@ -342,7 +342,7 @@
       }
       sync(); await G.save(gal); renderGal();
       const added = results.filter(Boolean).length;
-      toast(`Added ${added} photo${added === 1 ? "" : "s"}${before ? ` · ${mb(before)} → ${mb(after)}` : ""}${dupes ? ` · skipped ${dupes} already here` : ""}${failed ? ` · ${failed} failed` : ""}`, failed > 0);
+      toast(`Added ${added} photo${added === 1 ? "" : "s"}${before ? ` - ${mb(before)} -> ${mb(after)}` : ""}${dupes ? ` - skipped ${dupes} already here` : ""}${failed ? ` - ${failed} failed` : ""}`, failed > 0);
     } catch (e) { sync(); renderGal(); toast(e.message, true); }
     finally {
       galBusy = false; prog.classList.add("hidden");
@@ -427,11 +427,11 @@
     const rows = parseCSV(await file.text());
     if (rows.length < 2) return toast("CSV is empty", true);
     const head = rows[0].map((h) => h.trim().toLowerCase());
-    if (!head.includes("name")) return toast('CSV needs a "name" column — download the template', true);
+    if (!head.includes("name")) return toast('CSV needs a "name" column - download the template', true);
     const data = rows.slice(1).map((r) => Object.fromEntries(head.map((h, i) => [h, (r[i] || "").trim()]))).filter((r) => r.name);
     if (!confirm(`Import ${data.length} figures?`)) return;
     let ok = 0, fail = 0;
-    toast(`Importing ${data.length} figures…`);
+    toast(`Importing ${data.length} figures...`);
     for (const r of data) {
       try {
         let catId = null;
@@ -469,11 +469,11 @@
         const who = a.profile;
         const wa = who?.phone ? `https://wa.me/${who.phone.replace(/\D/g, "").replace(/^0/, "971")}` : "";
         return `<tr>
-          <td><b>${esc(a.product?.name || "")}</b><br><small style="color:var(--muted)">Start ${money(a.start_price)} · step ${money(a.min_increment)}</small></td>
+          <td><b>${esc(a.product?.name || "")}</b><br><small style="color:var(--muted)">Start ${money(a.start_price)} - step ${money(a.min_increment)}</small></td>
           <td><span class="pill ${st[1]}">${st[0]}</span></td>
           <td>${new Date(a.ends_at).toLocaleString("en-AE", { dateStyle: "medium", timeStyle: "short" })}</td>
-          <td>${a.current_bid != null ? `<b>${money(a.current_bid)}</b>` : "—"}</td><td>${a.bid_count}</td>
-          <td>${who ? `${esc(who.display_name || "")}<br><small>${esc(who.email || "")}${who.phone ? ` · <a href="${esc(wa)}" target="_blank" rel="noopener">${esc(who.phone)}</a>` : ""}</small>` : "—"}</td>
+          <td>${a.current_bid != null ? `<b>${money(a.current_bid)}</b>` : "-"}</td><td>${a.bid_count}</td>
+          <td>${who ? `${esc(who.display_name || "")}<br><small>${esc(who.email || "")}${who.phone ? ` - <a href="${esc(wa)}" target="_blank" rel="noopener">${esc(who.phone)}</a>` : ""}</small>` : "-"}</td>
           <td class="actions"><button class="btn sm navy" data-ab="${esc(a.id)}">Bids</button>
             ${st[0] === "Live" || st[0] === "Scheduled" ? `<button class="btn sm gold" data-ax="${esc(a.id)}">+1 day</button><button class="btn sm ghost" data-ac="${esc(a.id)}">Cancel</button>` : `<button class="btn sm ghost" data-ad="${esc(a.id)}">Delete</button>`}</td></tr>`;
       }).join("") : `<tr><td colspan="7" class="empty">No auctions yet.</td></tr>`;
@@ -505,7 +505,7 @@
   };
   async function bidsDialog(a) {
     const bids = await admin.allBids(a.id).catch((e) => (toast(e.message, true), []));
-    openModal(`<div class="modal-pad"><h2>Bids — ${esc(a.product?.name || "")}</h2>
+    openModal(`<div class="modal-pad"><h2>Bids - ${esc(a.product?.name || "")}</h2>
       <div class="table-wrap"><table><thead><tr><th>Amount</th><th>Bidder</th><th>Contact</th><th>Time</th></tr></thead><tbody>
       ${bids.length ? bids.map((b) => `<tr><td><b>${money(b.amount)}</b></td><td>${esc(b.profile?.display_name || b.bidder_name)}</td><td><small>${esc(b.profile?.email || "")}<br>${esc(b.profile?.phone || "")}</small></td><td>${new Date(b.created_at).toLocaleString("en-AE", { dateStyle: "short", timeStyle: "short" })}</td></tr>`).join("") : `<tr><td colspan="4" class="empty">No bids yet</td></tr>`}
       </tbody></table></div></div>`);
@@ -518,11 +518,11 @@
       const rows = (await admin.allOffers()).filter((o) => !filter || o.status === filter);
       const pill = { pending: "gold", accepted: "ok", rejected: "red", withdrawn: "no" };
       $("#offRows").innerHTML = rows.length ? rows.map((o) => {
-        const who = o.profile, wa = who?.phone ? `https://wa.me/${who.phone.replace(/\D/g, "").replace(/^0/, "971")}?text=${encodeURIComponent(`Hi ${who.display_name || ""}, about your ${money(o.amount)} offer for "${o.product?.name}"…`)}` : "";
+        const who = o.profile, wa = who?.phone ? `https://wa.me/${who.phone.replace(/\D/g, "").replace(/^0/, "971")}?text=${encodeURIComponent(`Hi ${who.display_name || ""}, about your ${money(o.amount)} offer for "${o.product?.name}"...`)}` : "";
         return `<tr>
           <td><b>${esc(o.product?.name || "")}</b>${o.product?.price != null ? `<br><small style="color:var(--muted)">Listed ${money(o.product.price)}</small>` : ""}</td>
           <td><b>${money(o.amount)}</b></td>
-          <td>${esc(who?.display_name || "")}<br><small>${esc(who?.email || "")}${who?.phone ? ` · <a href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}</small></td>
+          <td>${esc(who?.display_name || "")}<br><small>${esc(who?.email || "")}${who?.phone ? ` - <a href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}</small></td>
           <td><small>${esc(o.message || "")}</small></td>
           <td><span class="pill ${pill[o.status]}">${esc(o.status)}</span></td>
           <td class="actions">${o.status === "pending" ? `<button class="btn sm" data-oa="${esc(o.id)}">Accept</button><button class="btn sm ghost" data-or="${esc(o.id)}">Reject</button>` : ""}</td></tr>`;
@@ -559,7 +559,7 @@
     if (!confirm(`Give ${email} full admin access?\nThey'll be able to manage figures, auctions, offers and users.`)) return;
     try {
       const r = await admin.addAdminByEmail(email);
-      toast(r === "added" ? `${email} is now an admin` : `Invited — send ${email} this admin page to create their admin account`);
+      toast(r === "added" ? `${email} is now an admin` : `Invited - send ${email} this admin page to create their admin account`);
       $("#adminEmail").value = ""; loadUsers();
     } catch (x) { toast(x.message.replace(/^.*?:\s*/, ""), true); }
   };
@@ -571,9 +571,9 @@
       const self = me && u.id === me.id;
       const wa = u.phone ? `https://wa.me/${u.phone.replace(/\D/g, "").replace(/^0/, "971")}` : "";
       return `<tr>
-        <td><b>${esc(u.display_name || "—")}</b>${self ? ` <span class="pill gold">You</span>` : ""}</td>
+        <td><b>${esc(u.display_name || "\u2014")}</b>${self ? ` <span class="pill gold">You</span>` : ""}</td>
         <td><small>${esc(u.email || "")}${u.phone ? `<br><a href="${esc(wa)}" target="_blank" rel="noopener">${esc(u.phone)}</a>` : ""}</small></td>
-        <td>${u.created_at ? new Date(u.created_at).toLocaleDateString("en-AE") : "—"}</td>
+        <td>${u.created_at ? new Date(u.created_at).toLocaleDateString("en-AE") : "\u2014"}</td>
         <td>${u.bids}</td><td>${u.offers}</td><td>${u.wins}</td>
         <td>${u.is_admin ? `<span class="pill red">Admin</span>` : u.is_blocked ? `<span class="pill no">Blocked</span>` : `<span class="pill ok">Buyer</span>`}</td>
         <td class="actions">${self ? "" : `

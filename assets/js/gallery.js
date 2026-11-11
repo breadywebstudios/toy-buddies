@@ -63,7 +63,7 @@
   const setPlay = (on) => {
     wantPlay = on; clearInterval(timer); timer = null;
     if (on && n > 1) timer = setInterval(() => step(1), 3600);
-    playBtn.textContent = on ? "❚❚ Pause" : "▶ Play";
+    playBtn.textContent = on ? "\u275A\u275A Pause" : "\u25B6 Play";
     playBtn.setAttribute("aria-pressed", String(on));
   };
   const hold = () => { clearInterval(timer); timer = null; };
@@ -128,16 +128,16 @@
     let i = start;
     const lb = document.createElement("div");
     lb.className = "lightbox"; lb.setAttribute("role", "dialog"); lb.setAttribute("aria-modal", "true"); lb.setAttribute("aria-label", "Photo viewer");
-    lb.innerHTML = `<button class="lb-btn lb-close" type="button" aria-label="Close">×</button>
-      <button class="lb-btn lb-prev" type="button" aria-label="Previous photo">‹</button>
+    lb.innerHTML = `<button class="lb-btn lb-close" type="button" aria-label="Close">\u00D7</button>
+      <button class="lb-btn lb-prev" type="button" aria-label="Previous photo">\u2039</button>
       <figure class="lb-fig"><img alt=""><figcaption></figcaption></figure>
-      <button class="lb-btn lb-next" type="button" aria-label="Next photo">›</button>`;
+      <button class="lb-btn lb-next" type="button" aria-label="Next photo">\u203A</button>`;
     const img = lb.querySelector("img"), cap = lb.querySelector("figcaption");
     const show = () => {
       const it = items[i];
       img.classList.remove("in"); img.src = it.url; img.alt = it.caption || `Toy Buddies photo ${i + 1}`;
       img.decode?.().catch(() => {}).finally(() => img.classList.add("in"));
-      cap.textContent = `${it.caption ? it.caption + " · " : ""}${i + 1} / ${n}`;
+      cap.textContent = `${it.caption ? it.caption + " \u00B7 " : ""}${i + 1} / ${n}`;
       go(i);
     };
     const move = (d) => { i = wrap(i + d); show(); };
@@ -164,7 +164,7 @@
     n = items.length;
     if (!n) {
       const empty = $("#carEmpty");
-      empty.textContent = "Photos coming soon — Totoy is still unboxing!";
+      empty.textContent = "Photos coming soon \u2014 Totoy is still unboxing!";
       empty.classList.remove("hidden");
       $("#carPrev").hidden = $("#carNext").hidden = true;
       $(".car-bar").classList.add("hidden");

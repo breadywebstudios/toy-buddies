@@ -41,7 +41,9 @@
       const z = -(a <= 1 ? a * 190 : 190 + (a - 1) * 120);            // px into the screen
       const ry = -s * Math.min(a, 1) * 42 - s * Math.max(0, a - 1) * 4;  // turn away from the middle
       const el = slideFor(i);
-      el.style.transform = `translateX(${x.toFixed(2)}%) translateZ(${z.toFixed(1)}px) rotateY(${ry.toFixed(2)}deg)`;
+      const sc = 1 + Math.max(0, 1 - a) * 0.06;                        // the main photo steps forward a little
+      el.style.transform = `translateX(${x.toFixed(2)}%) translateZ(${z.toFixed(1)}px) rotateY(${ry.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      el.style.setProperty("--a", Math.min(a, 3).toFixed(3));          // distance from the middle: dims the side photos
       el.style.zIndex = String(100 - Math.round(a * 10));
       el.style.opacity = a > r + 0.4 ? "0" : String(1 - Math.min(a, 3) * 0.1);
       const center = i === cur && a < 0.5;

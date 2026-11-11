@@ -2,7 +2,6 @@
   const { C, $, esc, money, debounce, toast, imgOf, api, renderChrome, openModal, waLink } = App;
   renderChrome("catalog");
   document.title = `${C.STORE_NAME} — Anime Figures`;
-  if (C.STORE_TAGLINE) $("#tagline").textContent = C.STORE_TAGLINE + " — browse the catalogue, bid on rare finds, or make an offer.";
 
   const params = new URLSearchParams(location.search);
   const state = { q: params.get("q") || "", cat: params.get("cat") || "", sort: params.get("sort") || "new", page: +params.get("page") || 1 };

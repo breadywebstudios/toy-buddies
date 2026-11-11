@@ -306,7 +306,7 @@
     const head = document.createElement("header");
     head.className = "site-header";
     head.innerHTML = `<div class="container bar">
-      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">${esc(C.STORE_NAME || "Figure Store")}</span></a>
+      <a class="brand" href="index.html"><img class="brand-mark" src="assets/img/logo-180.png" alt="" width="46" height="46"><span class="brand-name">${esc(C.STORE_NAME || "Figure Store")}</span></a>
       <nav class="nav">
         <a href="index.html" class="${active === "catalog" ? "active" : ""}">Catalogue</a>
         <a href="bidding.html" class="${active === "bidding" ? "active" : ""}">Bid &amp; Offers</a>

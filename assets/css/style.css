@@ -71,15 +71,19 @@ img{max-width:100%; display:block}
 
 /* ===== Hero ===== */
 .hero{
-  position:relative; overflow:hidden; text-align:center; color:#fff; padding:88px 0 120px;
-  background:
-    /* soft shade behind the headline so the text reads cleanly */
-    radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%),
-    /* melts into the navy page at the bottom */
-    linear-gradient(180deg, transparent 84%, rgba(14,27,44,.6) 95%, var(--navy) 100%),
-    url("../img/hero-sky.svg") center/cover no-repeat,
-    #0A84DE;
+  position:relative; overflow:hidden; text-align:center; color:#fff; padding:88px 0 120px; background:#0A84DE;
 }
+/* the clouds: a strip of sky tiles that drifts slowly to the left, forever (one tile = 1600px, so the loop is seamless) */
+.hero::before{content:""; position:absolute; top:0; bottom:0; left:0; width:calc(100% + 1600px); pointer-events:none;
+  background:url("../img/hero-sky.svg") 0 50% / 1600px auto repeat;
+  translate:0 var(--sky-shift, 0px); animation:clouds-drift 150s linear infinite}
+@keyframes clouds-drift{to{transform:translateX(-1600px)}}
+/* shading over the clouds: a soft shade behind the headline, and a fade into the page below */
+.hero::after{content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%),
+    linear-gradient(180deg, transparent 84%, rgba(14,27,44,.6) 95%, var(--navy) 100%)}
+@media (prefers-reduced-motion:reduce){ .hero::before{animation:none} }
 .hero .container{position:relative; z-index:1}
 /* Totoy greets you above the headline, bobbing gently like a sticker on the sky */
 .hero-mascot{
@@ -99,6 +103,9 @@ img{max-width:100%; display:block}
   text-shadow:0 4px 0 var(--navy), 0 10px 24px rgba(8,40,80,.35);
 }
 .hero h1 span{color:var(--gold); text-shadow:0 4px 0 var(--navy), 0 7px 0 var(--orange-dark), 0 12px 24px rgba(8,40,80,.35)}
+/* every page's hero lines up the same: same headline size and width, balanced line breaks, same spacing */
+.hero h1{font-size:clamp(2.3rem, 5.4vw, 4.1rem); max-width:900px; margin-left:auto; margin-right:auto; text-wrap:balance}
+.hero p{text-wrap:pretty}
 .hero p{margin:0 auto; color:#fff; max-width:580px; font-size:1.08rem; font-weight:600; text-shadow:0 1px 8px rgba(8,40,80,.6)}
 .hero .cta{margin-top:30px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center}
 @media (max-width:640px){ .hero{padding:52px 0 96px} .hero-mascot{width:104px; height:104px} }
@@ -160,12 +167,10 @@ label{font-weight:600; font-size:.72rem; letter-spacing:.12em; text-transform:up
   position:relative; background:#fff; color:var(--ink); padding-bottom:48px; margin-top:-1px;
   box-shadow:0 0 0 100vmax #fff; clip-path:inset(0 -100vmax);   /* full-width white behind the centred column */
 }
-.hero:has(+ .container){
+.hero:has(+ .container)::after{
   background:
     radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%),
-    linear-gradient(180deg, transparent 84%, rgba(255,255,255,.6) 95%, #fff 100%),
-    url("../img/hero-sky.svg") center/cover no-repeat,
-    #0A84DE;
+    linear-gradient(180deg, transparent 84%, rgba(255,255,255,.6) 95%, #fff 100%);
 }
 .hero + .container .toolbar{background:#fff; border:3px solid var(--navy); box-shadow:0 6px 0 var(--navy), 0 18px 30px -18px rgba(11,22,39,.45)}
 .hero + .container .toolbar input, .hero + .container .toolbar select{border:2px solid var(--line); border-radius:999px; padding-left:16px}
@@ -433,6 +438,14 @@ td.actions .btn{margin-right:4px}
 .poster .extra{margin-top:12px; display:flex; flex-direction:column; gap:8px; text-align:left; position:relative; z-index:1}
 .poster .btn{position:relative; z-index:1}
 .poster .btn.gold{background:var(--poster-ink); border-color:var(--poster-ink); color:#F1E2C0}
+/* poster text: "WANTED" keeps the old-style display serif; the small text is set in Averia Serif Libre */
+.poster{--font-poster-text:"Averia Serif Libre", "Times New Roman", Times, serif}
+.poster .alive{font-family:var(--font-poster-text); font-weight:700; letter-spacing:1px; font-size:.74rem}
+.poster .name{font-family:var(--font-poster-text); font-weight:700; text-transform:none; font-size:1.08rem; letter-spacing:0; line-height:1.22; margin:6px 0 4px}
+.poster .bounty{font-family:var(--font-poster-text); font-weight:700; letter-spacing:.3px; font-size:1.1rem}
+.poster .bounty.muted{font-family:var(--font-poster-text); font-style:italic; font-weight:400; font-size:.95rem; letter-spacing:.2px; color:#5E4630}
+.poster .tag{font-family:var(--font-poster-text); font-weight:700; letter-spacing:1px}
+.poster .fine b{font-family:var(--font-poster-text); font-weight:700; letter-spacing:.8px}
 @media (max-width:520px){
   .poster{padding:0 2px; border-width:40px 18px 34px; border-image-width:40px 18px 34px}
   .poster .wanted{font-size:1.3rem; margin:0 0 6px}
@@ -518,7 +531,6 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 }
 
 /* hero: the sky drifts slower than the page, the headline floats up and fades */
-.hero{background-position:center, center, center calc(50% + var(--sky-shift, 0px)), center}
 .hero .container{will-change:transform, opacity}
 
 /* back-to-top sticker (left side, so it never meets the ship) */
@@ -613,19 +625,15 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 /* ===== Gallery: cloudy sky section with the old map unrolled as a scroll ===== */
 :root{ --map-edge:#2A1A0C; --ink:#5B3A1E; --scroll-gap:28px }
 /* the header keeps its plain sky (no fade) so it runs straight into the section's sky */
-.hero:has(+ .gallery-wrap){
-  background:
-    radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%),
-    url("../img/hero-sky.svg") center/cover no-repeat,
-    #0A84DE;
-  background-position:center, center calc(50% + var(--sky-shift, 0px)), center;
-}
+.hero:has(+ .gallery-wrap)::after{background:radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%)}
 main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measure the page width without the scroll bar */
 .hero + .container.gallery-wrap{position:relative; isolation:isolate; color:var(--ink); box-shadow:none; clip-path:none; background:none;
   padding-top:64px; padding-bottom:80px}
 /* the same cloud wallpaper as the header, across the full width */
-.hero + .container.gallery-wrap::before{content:""; position:absolute; z-index:-2; top:0; bottom:0; left:50%; width:100vw; width:100cqw; translate:-50% 0;
-  background:#0A84DE url("../img/hero-sky.svg") center top / max(1600px, 100%) auto repeat-y}
+.hero + .container.gallery-wrap::before{content:""; position:absolute; z-index:-2; top:0; bottom:0; left:calc(50% - 50vw); left:calc(50% - 50cqw);
+  width:calc(100vw + 1600px); width:calc(100cqw + 1600px);
+  background:#0A84DE url("../img/hero-sky.svg") 0 0 / 1600px auto repeat; animation:clouds-drift 150s linear infinite}
+@media (prefers-reduced-motion:reduce){ .hero + .container.gallery-wrap::before{animation:none} }
 /* the map: an old parchment scroll, rolled at both ends, reaching almost to the section's edges.
    The frame is the poster scroll turned on its side (9-slice: rolls keep their shape, the middle stretches). */
 .map-scroll{position:absolute; z-index:-1; top:18px; bottom:22px; left:50%; translate:-50% 0;

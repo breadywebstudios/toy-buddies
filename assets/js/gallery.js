@@ -13,7 +13,17 @@
 
   const wrap = (i) => ((i % n) + n) % n;
   const dist = (i, p) => { let d = i - p; d -= Math.round(d / n) * n; return d; };   // shortest way round the ring
-  const reach = () => Math.min(4, Math.floor((n - 1) / 2));
+  const small = matchMedia("(max-width: 640px), (pointer: coarse)");      // phones: fewer cards on screen, lighter effects
+  const reach = () => Math.min(small.matches ? 2 : 4, Math.floor((n - 1) / 2));
+  const warmed = new Set();                       // photos already fetched ahead of time
+
+  // A photo is shown only once it has fully downloaded and decoded, so it never draws in strip by strip.
+  function whenReady(img, el) {
+    const show = () => el.classList.add("loaded");
+    if (img.complete && img.naturalWidth) { (img.decode ? img.decode() : Promise.resolve()).catch(() => {}).then(show); return; }
+    img.addEventListener("load", () => { (img.decode ? img.decode() : Promise.resolve()).catch(() => {}).then(show); }, { once: true });
+    img.addEventListener("error", show, { once: true });
+  }
   const current = () => wrap(Math.round(pos));
 
   function slideFor(i) {
@@ -26,10 +36,14 @@
     el.style.setProperty("--aura-turn", `${(i * 67) % 360}deg`);                   // and has its own aura colours
     const no = String(i + 1).padStart(3, "0") + " / " + String(n).padStart(3, "0");
     // a collectible trading card: foil border, logo badge, photo window, nameplate with the card number
-    el.innerHTML = `<div class="card-photo"><div class="slide-bg" style="background-image:url('${esc(it.url)}')"></div>
-        <img src="${esc(it.url)}" alt="${esc(it.caption || `Toy Buddies photo ${i + 1}`)}" draggable="false" decoding="async"></div>
+    el.innerHTML = `<div class="card-photo"><div class="slide-bg"></div>
+        <img alt="${esc(it.caption || `Toy Buddies photo ${i + 1}`)}" draggable="false" decoding="async"></div>
       <span class="card-badge"><img src="assets/img/logo.webp" alt="" draggable="false"></span>
       <figcaption class="card-plate"><b>${esc(it.caption || "Toy Buddies")}</b><span>No. ${no}</span></figcaption>`;
+    const img = el.querySelector(".card-photo img");
+    whenReady(img, el);
+    img.src = it.url;
+    el.querySelector(".slide-bg").style.backgroundImage = `url('${it.url.replace(/'/g, "%27")}')`;
     ring.appendChild(el); els.set(i, el);
     return el;
   }
@@ -54,13 +68,19 @@
       el.style.opacity = a > r + 0.4 ? "0" : String(1 - Math.min(a, 3) * 0.1);
       const center = i === cur && a < 0.5;
       el.classList.toggle("is-center", center);
+      const img = el.querySelector(".card-photo img");
+      if (img) img.fetchPriority = center ? "high" : "low";                 // the middle photo downloads first
       el.setAttribute("aria-hidden", center ? "false" : "true");
     }
     els.forEach((el, i) => { if (!keep.has(i)) { el.remove(); els.delete(i); } });
     $("#carCount").textContent = `${cur + 1} / ${n}`;
     scrub.value = cur + 1;
     $("#carCaption").textContent = items[cur]?.caption || "";
-    for (let k = r + 2; k <= r + 3; k++) { new Image().src = items[wrap(base + k)].url; new Image().src = items[wrap(base - k)].url; }   // warm up the next few
+    // fetch the next photo on each side quietly, once the browser is idle (never competing with the middle photo)
+    const ahead = [wrap(base + r + 2), wrap(base - r - 2)].filter((j) => !warmed.has(j));
+    if (ahead.length) (window.requestIdleCallback || ((f) => setTimeout(f, 300)))(() => ahead.forEach((j) => {
+      warmed.add(j); const im = new Image(); im.decoding = "async"; im.fetchPriority = "low"; im.src = items[j].url;
+    }));
   }
 
   const go = (to) => { pos = Math.round(pos) + dist(wrap(to), Math.round(pos)); layout(); };

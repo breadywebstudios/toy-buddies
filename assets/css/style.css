@@ -747,6 +747,28 @@ main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measu
 .gallery-wrap .car-bar input[type=range]{height:14px; opacity:.8}
 .gallery-wrap .car-count{font-size:.8rem; min-width:0; color:var(--ink)}
 
+/* ----- smooth photo loading: a soft placeholder until the photo is fully ready, then it fades in ----- */
+.card-photo{background:linear-gradient(135deg, #3A2614, #5A3C1E 50%, #3A2614)}
+.card-photo img, .card-photo .slide-bg{opacity:0; transition:opacity .45s ease}
+.slide.loaded .card-photo img, .slide.loaded .card-photo .slide-bg{opacity:1}
+.card-photo::after{content:""; position:absolute; inset:0; pointer-events:none; transition:opacity .3s ease;
+  background:linear-gradient(100deg, transparent 30%, rgba(255,236,190,.18) 50%, transparent 70%) 0 0 / 250% 100%;
+  animation:photo-wait 1.3s linear infinite}
+.slide.loaded .card-photo::after{opacity:0; animation:none}
+@keyframes photo-wait{from{background-position:100% 0} to{background-position:-150% 0}}
+
+/* ----- phones and touch screens: same look, far less work for the graphics chip ----- */
+@media (max-width:640px), (pointer:coarse){
+  .gallery-wrap .carousel{-webkit-mask-image:none; mask-image:none}                 /* no soft-edge mask (forced a full redraw every frame) */
+  .gallery-wrap .slide::before{display:none}                                       /* aura only on the middle card */
+  .gallery-wrap .slide.is-center::before{display:block; inset:-12px; filter:blur(12px); animation:none; opacity:.8}
+  .gallery-wrap .card-photo .slide-bg{display:none}                                /* no blurred photo behind letterboxed shots */
+  .gallery-wrap .slide.is-center{animation:card-float 3.8s ease-in-out infinite;    /* glow is steady instead of animated */
+    box-shadow:0 0 0 2px var(--ink), 0 0 26px 6px rgba(254,193,66,.55), 0 30px 40px -14px rgba(30,14,4,.85)}
+  .gallery-wrap .slide.is-center::after{mix-blend-mode:normal; opacity:.35}
+  .gallery-wrap .slide{filter:none; will-change:transform}
+}
+
 /* text under the carousel, inked on the map */
 .gallery-wrap .car-caption{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
 .gallery-wrap .car-count{color:var(--ink)}

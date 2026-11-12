@@ -22,6 +22,8 @@
     const it = items[i];
     el = document.createElement("figure");
     el.className = "slide"; el.dataset.i = i;
+    el.style.setProperty("--float-delay", `${(-(i * 1.37) % 3.8).toFixed(2)}s`);   // each card bobs to its own rhythm
+    el.style.setProperty("--aura-turn", `${(i * 67) % 360}deg`);                   // and has its own aura colours
     const no = String(i + 1).padStart(3, "0") + " / " + String(n).padStart(3, "0");
     // a collectible trading card: foil border, logo badge, photo window, nameplate with the card number
     el.innerHTML = `<div class="card-photo"><div class="slide-bg" style="background-image:url('${esc(it.url)}')"></div>

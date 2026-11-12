@@ -357,7 +357,7 @@
       <nav class="nav">
         <a href="index.html" class="${active === "catalog" ? "active" : ""}">Catalogue</a>
         <a href="gallery.html" class="${active === "gallery" ? "active" : ""}">Gallery</a>
-        <a href="bidding.html" class="${active === "bidding" ? "active" : ""}">Bid &amp; Offers</a>
+        <a href="bidding.html" class="${active === "bidding" ? "active" : ""}">Bid<span class="nav-long"> &amp; Offers</span></a>
         <span id="authSlot"></span>
       </nav></div>`;
     document.body.prepend(head);
@@ -477,9 +477,9 @@
       // The admin page has its own login form; the header only shows who is signed in as admin.
       slot.innerHTML = u ? `<button class="user-chip admin-chip" id="signOutBtn" title="Sign out of admin">\uD83D\uDD11 ${esc(u.email.split("@")[0])} \u00B7 Sign out</button>` : "";
     } else if (u) {
-      slot.innerHTML = `<button class="user-chip" id="signOutBtn" title="Sign out">${esc(u.email.split("@")[0])} \u00B7 Sign out</button>`;
+      slot.innerHTML = `<button class="user-chip" id="signOutBtn" title="Sign out"><span class="nav-long">${esc(u.email.split("@")[0])} \u00B7 </span>Sign out</button>`;
     } else {
-      slot.innerHTML = `<button id="signInBtn">Member sign in</button>`;
+      slot.innerHTML = `<button id="signInBtn"><span class="nav-long">Member </span>Sign in</button>`;
       $("#signInBtn").onclick = () => openAuth();
     }
     const out = $("#signOutBtn");

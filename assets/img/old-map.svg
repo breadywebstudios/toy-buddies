@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="paper" cx="50%" cy="46%" r="75%">
+      <stop offset="0" stop-color="#EBD5A6"/>
+      <stop offset=".45" stop-color="#DDBF86"/>
+      <stop offset=".78" stop-color="#B98A4E"/>
+      <stop offset="1" stop-color="#6E4520"/>
+    </radialGradient>
+    <radialGradient id="burn" cx="50%" cy="50%" r="72%">
+      <stop offset=".62" stop-color="#3A2010" stop-opacity="0"/>
+      <stop offset=".9" stop-color="#3A2010" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#1E1008" stop-opacity=".9"/>
+    </radialGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/>
+      <feColorMatrix values="0 0 0 0 .36  0 0 0 0 .22  0 0 0 0 .1  0 0 0 .5 0"/>
+    </filter>
+    <filter id="stains" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".006" numOctaves="3" seed="11"/>
+      <feColorMatrix values="0 0 0 0 .45  0 0 0 0 .28  0 0 0 0 .12  0 0 0 -2.2 1.25"/>
+    </filter>
+    <filter id="rough"><feTurbulence baseFrequency=".04" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="6"/></filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#paper)"/>
+  <rect width="1600" height="900" filter="url(#stains)" opacity=".55"/>
+  <rect width="1600" height="900" filter="url(#grain)" opacity=".5"/>
+
+  <!-- latitude / longitude lines -->
+  <g stroke="#6B4523" stroke-opacity=".28" stroke-width="1.2" fill="none" stroke-dasharray="2 7">
+    <path d="M0 150H1600M0 300H1600M0 450H1600M0 600H1600M0 750H1600"/>
+    <path d="M200 0V900M400 0V900M600 0V900M800 0V900M1000 0V900M1200 0V900M1400 0V900"/>
+  </g>
+  <!-- rhumb lines from the compass -->
+  <g stroke="#7A4A22" stroke-opacity=".2" stroke-width="1">
+    <path d="M220 690L1600 90M220 690L1600 420M220 690L1100 0M220 690L1600 900M220 690L0 200M220 690L700 900"/>
+  </g>
+
+  <!-- islands -->
+  <g filter="url(#rough)" stroke-linejoin="round">
+    <g fill="none" stroke="#6B4523" stroke-opacity=".22" stroke-width="1.4">
+      <path d="M70 120c40-60 150-80 230-50s120 20 170 60 40 110-30 140-160 40-230 20-150-30-160-80 0-60 20-90z" transform="translate(-6 -6) scale(1.04)"/>
+      <path d="M1180 70c70-40 190-30 260 10s110 110 60 160-150 40-220 60-140-10-160-60 0-130 60-170z" transform="translate(1160 60) scale(1.05) translate(-1160 -60)"/>
+      <path d="M1250 620c50-50 150-60 210-20s70 120 20 170-160 60-220 30-70-120-10-180z" transform="translate(1340 690) scale(1.06) translate(-1340 -690)"/>
+    </g>
+    <g fill="#CFA867" fill-opacity=".55" stroke="#5B3A1E" stroke-width="2.4" stroke-opacity=".75">
+      <path d="M70 120c40-60 150-80 230-50s120 20 170 60 40 110-30 140-160 40-230 20-150-30-160-80 0-60 20-90z"/>
+      <path d="M1180 70c70-40 190-30 260 10s110 110 60 160-150 40-220 60-140-10-160-60 0-130 60-170z"/>
+      <path d="M1250 620c50-50 150-60 210-20s70 120 20 170-160 60-220 30-70-120-10-180z"/>
+      <path d="M560 760c30-20 80-20 100 5s10 60-30 70-90 0-90-30 0-30 20-45z"/>
+      <path d="M1040 380c20-14 55-12 66 6s4 40-20 46-56-2-58-22 0-20 12-30z"/>
+    </g>
+  </g>
+  <!-- mountains and trees -->
+  <g fill="none" stroke="#5B3A1E" stroke-opacity=".7" stroke-width="2" stroke-linecap="round">
+    <path d="M170 170l25-38 25 38M210 175l20-30 20 30M330 150l22-34 22 34"/>
+    <path d="M1260 140l26-40 26 40M1300 150l20-30 20 30M1380 130l22-34 22 34"/>
+    <path d="M1320 700v-22m-10 10l10-12 10 12M1360 710v-22m-10 10l10-12 10 12M1400 690v-22m-10 10l10-12 10 12"/>
+  </g>
+
+  <!-- dotted route to the treasure -->
+  <path d="M300 230C480 330 520 120 760 170S1000 420 900 520 1100 760 1360 720" fill="none" stroke="#8C2A12" stroke-opacity=".7" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+  <g stroke="#9C1F0E" stroke-width="7" stroke-linecap="round" opacity=".85"><path d="M1345 705l30 30M1375 705l-30 30"/></g>
+
+  <!-- compass rose -->
+  <g transform="translate(220 690)" stroke="#5B3A1E" stroke-width="1.6">
+    <circle r="96" fill="none" stroke-opacity=".7"/>
+    <circle r="86" fill="none" stroke-opacity=".5" stroke-dasharray="3 5"/>
+    <g fill="#C29455" fill-opacity=".7" transform="rotate(45)">
+      <path d="M0-70L12 0 0 70-12 0zM-70 0L0-12 70 0 0 12z"/>
+    </g>
+    <path d="M0-90L16 0H-16z" fill="#7A2414" fill-opacity=".85"/>
+    <path d="M0 90L16 0H-16z" fill="#E8D2A2"/>
+    <path d="M-90 0L0-16V16zM90 0L0-16V16z" fill="#5B3A1E" fill-opacity=".8"/>
+    <circle r="8" fill="#E8D2A2"/>
+    <text y="-104" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="bold" fill="#5B3A1E" stroke="none">N</text>
+  </g>
+
+  <!-- lettering -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-style="italic" fill="#5B3A1E" fill-opacity=".7">
+    <text x="1210" y="345" font-size="34">Here be Treasures</text>
+    <text x="90" y="330" font-size="22" fill-opacity=".55">Mare Incognitum</text>
+    <text x="640" y="860" font-size="22" fill-opacity=".55">Toy Buddies &#183; Anno MMXXV</text>
+  </g>
+
+  <!-- waves -->
+  <g fill="none" stroke="#6B4523" stroke-opacity=".4" stroke-width="1.8" stroke-linecap="round">
+    <path d="M560 300q12-10 24 0t24 0M600 330q12-10 24 0t24 0M980 250q12-10 24 0t24 0M450 560q12-10 24 0t24 0M1080 560q12-10 24 0t24 0M1500 450q12-10 24 0t24 0M60 480q12-10 24 0t24 0"/>
+  </g>
+
+  <rect width="1600" height="900" fill="url(#burn)"/>
+</svg>

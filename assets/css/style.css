@@ -609,63 +609,53 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
   .slide{border-width:4px; border-radius:16px}
 }
 
-/* ===== Gallery: black "virtual space" around the carousel ===== */
-:root{ --space:#04060c }
-/* the whole gallery band is deep black, and the sky hero fades into it */
+/* ===== Gallery: the whole section is an old brown treasure map ===== */
+:root{ --map-edge:#2A1A0C; --ink:#5B3A1E }
+/* the sky hero fades into the map's dark top edge */
 .hero:has(+ .gallery-wrap){
   background:
-    radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%),
-    linear-gradient(180deg, transparent 78%, rgba(4,6,12,.75) 93%, var(--space) 100%),
+    linear-gradient(180deg, transparent 62%, rgba(42,26,12,.25) 78%, rgba(42,26,12,.65) 92%, var(--map-edge) 100%),
     url("../img/hero-sky.svg") center/cover no-repeat,
     #0A84DE;
-  background-position:center, center, center calc(50% + var(--sky-shift, 0px)), center;
+  background-position:center, center calc(50% + var(--sky-shift, 0px)), center;
 }
-.hero + .container.gallery-wrap{background:var(--space); color:#E8EEFC; box-shadow:0 0 0 100vmax var(--space); clip-path:inset(0 -100vmax)}
-.carousel{border-radius:0; overflow:hidden; background:radial-gradient(ellipse 70% 60% at 50% 45%, #0C1630 0%, #070B18 45%, var(--space) 80%)}
-.carousel:focus-visible{box-shadow:inset 0 0 0 2px var(--gold)}
-.car-space{position:absolute; inset:0; pointer-events:none; overflow:hidden}
-/* two layers of stars that drift at different speeds and twinkle */
-.stars{position:absolute; inset:-50%;
-  background-image:
-    radial-gradient(1.2px 1.2px at 20px 30px, #fff, transparent),
-    radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,.8), transparent),
-    radial-gradient(1.4px 1.4px at 200px 160px, #FFD877, transparent),
-    radial-gradient(1px 1px at 60px 190px, rgba(160,210,255,.9), transparent),
-    radial-gradient(1.2px 1.2px at 170px 20px, #fff, transparent);
-  background-size:240px 220px; opacity:.7; animation:star-drift 90s linear infinite, star-twinkle 4s ease-in-out infinite alternate}
-.stars.s2{background-size:380px 340px; opacity:.45; animation-duration:150s, 6s; animation-direction:reverse, alternate}
-@keyframes star-drift{to{transform:translate(240px, 110px)}}
-@keyframes star-twinkle{from{opacity:.35} to{opacity:.85}}
-/* glowing grid floor flowing towards you */
-.car-grid{position:absolute; left:-60%; right:-60%; bottom:-6%; height:52%;
+/* the map fills the full width and height of the gallery section */
+.hero + .container.gallery-wrap{position:relative; isolation:isolate; color:var(--ink)}
+.hero + .container.gallery-wrap::before{content:""; position:absolute; z-index:-1; top:0; bottom:0; left:50%; width:100vw; translate:-50% 0;
   background:
-    linear-gradient(rgba(79,170,255,.38) 1px, transparent 1px) 0 0 / 100% 46px,
-    linear-gradient(90deg, rgba(79,170,255,.30) 1px, transparent 1px) 0 0 / 46px 100%;
-  transform:perspective(520px) rotateX(72deg); transform-origin:50% 100%;
-  -webkit-mask-image:linear-gradient(to top, #000 15%, transparent 85%); mask-image:linear-gradient(to top, #000 15%, transparent 85%);
-  animation:grid-flow 3.2s linear infinite}
-@keyframes grid-flow{to{background-position:0 46px, 0 0}}
-/* spotlight behind the main photo */
+    linear-gradient(180deg, var(--map-edge) 0, rgba(42,26,12,.72) 50px, rgba(42,26,12,.38) 120px, rgba(42,26,12,.14) 200px, transparent 300px),
+    url("../img/old-map.svg") center/cover no-repeat,
+    #C9A26A}
+main:has(> .gallery-wrap){overflow-x:clip}   /* the full-width map never adds a sideways scroll bar */
+/* the carousel sits straight on the map */
+.carousel{border-radius:0; overflow:hidden; background:none;
+  /* soft edges: photos turning away at the sides, and anything at the top or bottom, fade into the map */
+  -webkit-mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 92%, transparent);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 92%, transparent);
+  mask-composite:intersect}
+.carousel:focus-visible{box-shadow:inset 0 0 0 3px var(--gold)}
+.car-space{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+/* warm lantern light behind the main photo */
 .car-spot{position:absolute; left:50%; top:46%; width:min(680px, 110%); aspect-ratio:1; translate:-50% -50%;
-  background:radial-gradient(circle, rgba(254,193,66,.30) 0%, rgba(30,134,190,.16) 38%, transparent 66%);
-  filter:blur(8px); animation:spot-pulse 4.5s ease-in-out infinite}
-@keyframes spot-pulse{50%{opacity:.7; scale:.94}}
+  background:radial-gradient(circle, rgba(255,236,190,.55) 0%, rgba(255,214,140,.22) 36%, transparent 64%);
+  mix-blend-mode:soft-light; animation:spot-pulse 4.5s ease-in-out infinite}
+@keyframes spot-pulse{50%{opacity:.75; scale:.95}}
 
-/* photos in space: thin frames, darker and greyer the further from the middle, mirrored on the floor */
+/* photos pinned on the map: the further from the middle, the more faded and sepia */
 .gallery-wrap .slide{
-  border:3px solid rgba(255,255,255,.16); background:#0A0F1E;
-  box-shadow:0 30px 60px -18px rgba(0,0,0,.95);
-  filter:brightness(calc(1 - var(--a, 0) * .2)) saturate(calc(1 - var(--a, 0) * .15));
-  -webkit-box-reflect:below 12px linear-gradient(transparent 74%, rgba(255,255,255,.2));
+  border:4px solid #F1E2BF; background:#3A2614;
+  box-shadow:0 0 0 1px rgba(60,34,14,.7), 0 26px 40px -14px rgba(30,14,4,.85);
+  filter:brightness(calc(1 - var(--a, 0) * .12)) sepia(calc(var(--a, 0) * .35));
   transition:transform .75s var(--spring), opacity .45s ease, filter .45s ease, box-shadow .4s ease, border-color .4s ease;
 }
 .gallery-wrap .slide:not(.is-center) img{filter:none}
 .gallery-wrap .slide.is-center{
   border-color:var(--gold);
-  box-shadow:0 0 0 1px rgba(255,216,119,.9), 0 0 28px 6px rgba(254,193,66,.45), 0 0 90px 24px rgba(30,134,190,.32), 0 40px 70px -18px #000;
+  box-shadow:0 0 0 2px var(--ink), 0 0 26px 6px rgba(254,193,66,.55), 0 34px 50px -14px rgba(30,14,4,.9);
   animation:frame-glow 2.8s ease-in-out infinite alternate;
 }
-@keyframes frame-glow{to{box-shadow:0 0 0 1px rgba(255,216,119,1), 0 0 40px 10px rgba(254,193,66,.6), 0 0 120px 34px rgba(30,134,190,.42), 0 40px 70px -18px #000}}
+@keyframes frame-glow{to{box-shadow:0 0 0 2px var(--ink), 0 0 40px 12px rgba(254,193,66,.7), 0 34px 50px -14px rgba(30,14,4,.9)}}
 /* a light sheen sweeps across the main photo */
 .gallery-wrap .slide::after{content:""; position:absolute; inset:0; z-index:2; pointer-events:none; opacity:0;
   background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.26) 48%, transparent 60%); translate:-120% 0}
@@ -673,13 +663,13 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 @keyframes sheen{0%, 55%{translate:-120% 0} 85%, 100%{translate:120% 0}}
 .car-ring.dragging .slide{transition:opacity .3s ease, filter .3s ease}
 
-/* text under the carousel, on black */
-.gallery-wrap .car-caption{color:#fff}
-.gallery-wrap .car-count{color:var(--gold)}
-.gallery-wrap .car-empty{color:rgba(255,255,255,.7)}
+/* text under the carousel, inked on the map */
+.gallery-wrap .car-caption{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
+.gallery-wrap .car-count{color:var(--ink)}
+.gallery-wrap .car-empty{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
 
 @media (prefers-reduced-motion:reduce){
-  .stars, .car-grid, .car-spot, .gallery-wrap .slide.is-center, .gallery-wrap .slide.is-center::after{animation:none}
+  .car-spot, .gallery-wrap .slide.is-center, .gallery-wrap .slide.is-center::after{animation:none}
 }
 
 /* full-screen viewer */

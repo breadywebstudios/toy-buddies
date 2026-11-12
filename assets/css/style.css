@@ -691,21 +691,24 @@ main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measu
 
 /* ----- each photo is a collectible trading card ----- */
 .gallery-wrap .slide{
-  border:0; border-radius:16px; padding:10px 10px 0; display:flex; flex-direction:column;
+  border:7px solid #7A4E0E; outline:3px solid var(--navy); outline-offset:0;   /* bold outer edge: deep-gold rim + navy outline */
+  border-radius:20px; padding:14px 14px 0; display:flex; flex-direction:column;
   background:linear-gradient(135deg, #FFE9A8 0%, #C8922E 22%, #FFF4CC 42%, #B07A1F 62%, #FFE08A 82%, #8A5A12 100%);
 }
 .card-photo{position:relative; aspect-ratio:4 / 5; overflow:hidden; border-radius:9px; background:#1A1108;
-  box-shadow:0 0 0 2px var(--map-edge), inset 0 0 0 1px rgba(255,255,255,.25)}
+  box-shadow:0 0 0 2px var(--map-edge), 0 0 0 5px rgba(255,244,204,.55), 0 0 0 6px rgba(138,90,18,.6), inset 0 0 0 1px rgba(255,255,255,.25)}
 .card-photo img{position:relative; display:block; width:100%; height:100%; object-fit:contain}
 .card-badge{position:absolute; top:2px; left:2px; z-index:3; width:52px; height:52px; border-radius:50%; overflow:hidden;
   background:#fff; border:3px solid var(--navy); box-shadow:0 3px 0 var(--navy), 0 0 0 2px #FFE9A8}
 .card-badge img{width:100%; height:100%; object-fit:cover}
-.card-plate{display:flex; align-items:center; justify-content:space-between; gap:10px; height:46px; margin:8px -10px 0; padding:0 14px;
-  border-radius:0 0 16px 16px; color:#fff;
+.card-plate{display:flex; align-items:center; justify-content:space-between; gap:10px; height:46px; margin:12px -14px 0; padding:0 16px;
+  border-radius:0 0 14px 14px; color:#fff;
   background:linear-gradient(100deg, var(--navy) 0 64%, var(--orange) 64% 68%, var(--navy) 68% 72%, var(--gold) 72%)}
 .card-plate b{font-family:var(--font-display); font-weight:400; font-size:1.12rem; letter-spacing:.03em; text-transform:uppercase;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; max-width:64%}
 .card-plate span{font-weight:800; font-size:.78rem; color:var(--navy); white-space:nowrap}
+/* the bold rim stays deep bronze on every card, including the selected one */
+.gallery-wrap .slide, .gallery-wrap .slide.is-center{border-color:#7A4E0E}
 /* holographic rainbow shimmer across the middle card */
 .gallery-wrap .slide::after{border-radius:inherit}
 .gallery-wrap .slide.is-center::after{
@@ -713,8 +716,8 @@ main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measu
   translate:none; mix-blend-mode:overlay; opacity:.85; animation:holo 4.5s ease-in-out infinite alternate}
 @keyframes holo{from{background-position:100% 0} to{background-position:0 0}}
 @media (max-width:640px){
-  .gallery-wrap .slide{padding:7px 7px 0; border-radius:12px}
-  .card-badge{width:40px; height:40px}   .card-plate{height:38px; margin:6px -7px 0; padding:0 10px; border-radius:0 0 12px 12px}
+  .gallery-wrap .slide{padding:9px 9px 0; border-width:5px; outline-width:3px; border-radius:15px}
+  .card-badge{width:40px; height:40px}   .card-plate{height:38px; margin:9px -9px 0; padding:0 10px; border-radius:0 0 11px 11px}
   .card-plate b{font-size:.92rem} .card-plate span{font-size:.68rem}
 }
 
@@ -767,7 +770,7 @@ main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measu
   .gallery-wrap .card-photo .slide-bg{display:none}                                /* no blurred photo behind letterboxed shots */
   .gallery-wrap .slide.is-center{animation:card-float 3.8s ease-in-out infinite;    /* glow is steady instead of animated */
     box-shadow:0 0 0 2px var(--ink), 0 0 26px 6px rgba(254,193,66,.55), 0 30px 40px -14px rgba(30,14,4,.85)}
-  .gallery-wrap .slide.is-center::after{mix-blend-mode:normal; opacity:.35}
+  .gallery-wrap .slide.is-center::after{mix-blend-mode:normal; opacity:.16}
   .gallery-wrap .slide{filter:none; will-change:transform}
 }
 

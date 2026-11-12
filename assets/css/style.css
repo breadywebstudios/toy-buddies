@@ -932,3 +932,9 @@ body .pe-root .seg button.on{border-color:var(--navy); background:var(--gold); f
 .site-footer a{color:var(--gold)}
 .modal-box{outline:none; border:3px solid var(--navy); box-shadow:0 8px 0 var(--navy), 0 40px 80px -30px rgba(0,0,0,.8)}
 .panel{border-radius:var(--radius)}
+
+/* ===== Admin: Users screen split into Admins and Members ===== */
+.users-head{display:flex; align-items:center; gap:10px; margin:6px 0 4px; font-family:var(--font-display); font-weight:400; font-size:1.35rem; color:var(--navy)}
+.users-sub{color:var(--muted); font-weight:600; margin:0 0 12px}
+.invite-row td{background:rgba(254,193,66,.08)}
+.invite-row .mailed{color:var(--orange-dark); font-weight:700}

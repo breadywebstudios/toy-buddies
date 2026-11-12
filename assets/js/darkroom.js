@@ -16,7 +16,7 @@
    ===================================================================== */
 import { setPhotoEditorNotify } from "./photo-editor.js";
 
-const APP_URL = new URL("../../darkroom/index.html?embed=1&v=20261113f", import.meta.url).href;
+const APP_URL = new URL("../../darkroom/index.html?embed=1&v=20261113i", import.meta.url).href;
 
 export const NO_LOOK = { warmth: 0, bright: 0, vibrance: 0 };   // kept for older callers
 

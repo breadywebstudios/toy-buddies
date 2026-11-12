@@ -543,11 +543,38 @@
     try { me = await auth.user(); users = await admin.users(); renderUsers(); } catch (e) { toast(e.message, true); }
     loadInvites();
   }
+  // A ready-written email to a new admin, opened in the owner's own email app (mailto:), so it comes from the owner.
+  // alreadyHasAccount: true = they were made admin straight away; false = they still need to create their admin account.
+  function inviteMail(email, alreadyHasAccount) {
+    const page = location.origin + location.pathname;          // this admin page
+    const store = C.STORE_NAME || "Toy Buddies";
+    const subject = alreadyHasAccount ? `You're now an admin on ${store}` : `You're invited to be an admin on ${store}`;
+    const body = alreadyHasAccount
+      ? `Hi,\n\nI've made you an admin on ${store}. You can now manage figures, auctions, offers, the gallery and members.\n\n`
+        + `Open the admin page and sign in with this email (${email}) and your usual password:\n${page}\n\nThanks!`
+      : `Hi,\n\nI've invited you to be an admin on ${store}, so you can help manage figures, auctions, offers, the gallery and members.\n\n`
+        + `To set up your admin account:\n1. Open the admin page: ${page}\n2. Choose "Invited by the owner? Create your admin account"\n`
+        + `3. Use this email address: ${email}\n4. Pick a password and confirm your email if asked.\n\nThanks!`;
+    return `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  // When each invite was last emailed - kept in this browser only, just as a reminder for the owner.
+  const MAIL_KEY = "tb-invite-mailed";
+  const mailedAll = () => { try { return JSON.parse(localStorage.getItem(MAIL_KEY) || "{}"); } catch (e) { return {}; } };
+  const mailedOn = (email) => { const t = mailedAll()[email]; return t ? new Date(t).toLocaleDateString("en-AE", { day: "numeric", month: "short" }) : ""; };
+  const markMailed = (email) => { try { const m = mailedAll(); m[email] = Date.now(); localStorage.setItem(MAIL_KEY, JSON.stringify(m)); } catch (e) {} };
+
+  // invites that haven't signed up yet are listed under the admins, marked "Waiting to sign up"
   async function loadInvites() {
     const inv = await admin.invites().catch(() => []);
-    $("#invitesWrap").classList.toggle("hidden", !inv.length);
-    $("#inviteRows").innerHTML = inv.map((i) => `<tr><td><b>${esc(i.email)}</b></td><td><small>Invited ${new Date(i.created_at).toLocaleDateString("en-AE")}</small></td>
-      <td class="actions"><button class="btn sm ghost" data-ci="${esc(i.email)}">Cancel</button></td></tr>`).join("");
+    $("#inviteRows").innerHTML = inv.map((i) => `<tr class="invite-row"><td><b>${esc(i.email.split("@")[0])}</b> <span class="pill">Invited</span></td>
+      <td><small>${esc(i.email)}</small></td><td><small>Invited ${new Date(i.created_at).toLocaleDateString("en-AE")}<br>Waiting to sign up${
+        mailedOn(i.email) ? `<br><span class="mailed">\u2709\uFE0F Emailed ${esc(mailedOn(i.email))}</span>` : ""}</small></td>
+      <td class="actions"><a class="btn sm navy" data-mail="${esc(i.email)}" href="${esc(inviteMail(i.email, false))}">${
+        mailedOn(i.email) ? "\u21BB Resend email" : "\u2709\uFE0F Email invite"}</a>
+        <button class="btn sm ghost" data-ci="${esc(i.email)}">Cancel invite</button></td></tr>`).join("");
+    // remember when each invite was emailed (on this device), and switch the button to "Resend email"
+    $$("[data-mail]").forEach((a) => a.addEventListener("click", () => { markMailed(a.dataset.mail); setTimeout(loadInvites, 400); }));
     $$("[data-ci]").forEach((b) => (b.onclick = async () => {
       if (!confirm(`Cancel the admin invite for ${b.dataset.ci}?`)) return;
       try { await admin.cancelInvite(b.dataset.ci); toast("Invite cancelled"); loadInvites(); } catch (e) { toast(e.message, true); }
@@ -559,36 +586,53 @@
     if (!confirm(`Give ${email} full admin access?\nThey'll be able to manage figures, auctions, offers and users.`)) return;
     try {
       const r = await admin.addAdminByEmail(email);
-      toast(r === "added" ? `${email} is now an admin` : `Invited - send ${email} this admin page to create their admin account`);
+      const added = r === "added";
+      toast(added ? `${email} is now an admin` : `${email} is invited`);
       $("#adminEmail").value = ""; loadUsers();
+      // offer a ready-written email so they know (opens the owner's email app; nothing is sent until they press Send)
+      if (confirm(added ? `${email} is now an admin.\n\nEmail them to let them know?` : `${email} is invited.\n\nEmail them the admin page link and sign-up steps now?`))
+        { if (!added) markMailed(email); location.href = inviteMail(email, added); }
     } catch (x) { toast(x.message.replace(/^.*?:\s*/, ""), true); }
   };
+  const contact = (u) => {
+    const wa = u.phone ? `https://wa.me/${u.phone.replace(/\D/g, "").replace(/^0/, "971")}` : "";
+    return `<small>${esc(u.email || "")}${u.phone ? `<br><a href="${esc(wa)}" target="_blank" rel="noopener">${esc(u.phone)}</a>` : ""}</small>`;
+  };
+  const joined = (u) => (u.created_at ? new Date(u.created_at).toLocaleDateString("en-AE") : "\u2014");
+  const nameCell = (u) => `<b>${esc(u.display_name || "\u2014")}</b>${me && u.id === me.id ? ` <span class="pill gold">You</span>` : ""}`;
+
   function renderUsers() {
+    const admins = users.filter((u) => u.is_admin), members = users.filter((u) => !u.is_admin);
+    $("#adminCount").textContent = admins.length;
+    $("#memberCount").textContent = members.length;
+
+    // ----- admins table -----
+    $("#adminRows").innerHTML = admins.length ? admins.map((u) => `<tr>
+        <td>${nameCell(u)}</td><td>${contact(u)}</td><td>${joined(u)}</td>
+        <td class="actions">${me && u.id === me.id ? "" : `<button class="btn sm ghost" data-ua="${esc(u.id)}" data-on="0">Remove admin</button>`}</td></tr>`).join("")
+      : `<tr><td colspan="4" class="empty">No admins yet.</td></tr>`;
+
+    // ----- members table -----
     const q = ($("#uq").value || "").toLowerCase(), f = $("#ufilter").value;
-    const rows = users.filter((u) => (!q || [u.display_name, u.email, u.phone].join(" ").toLowerCase().includes(q))
-      && (!f || (f === "admin" ? u.is_admin : f === "blocked" ? u.is_blocked : u.bids + u.offers > 0)));
-    $("#userRows").innerHTML = rows.length ? rows.map((u) => {
-      const self = me && u.id === me.id;
-      const wa = u.phone ? `https://wa.me/${u.phone.replace(/\D/g, "").replace(/^0/, "971")}` : "";
-      return `<tr>
-        <td><b>${esc(u.display_name || "\u2014")}</b>${self ? ` <span class="pill gold">You</span>` : ""}</td>
-        <td><small>${esc(u.email || "")}${u.phone ? `<br><a href="${esc(wa)}" target="_blank" rel="noopener">${esc(u.phone)}</a>` : ""}</small></td>
-        <td>${u.created_at ? new Date(u.created_at).toLocaleDateString("en-AE") : "\u2014"}</td>
+    const rows = members.filter((u) => (!q || [u.display_name, u.email, u.phone].join(" ").toLowerCase().includes(q))
+      && (!f || (f === "blocked" ? u.is_blocked : u.bids + u.offers > 0)));
+    $("#userRows").innerHTML = rows.length ? rows.map((u) => `<tr>
+        <td>${nameCell(u)}</td><td>${contact(u)}</td><td>${joined(u)}</td>
         <td>${u.bids}</td><td>${u.offers}</td><td>${u.wins}</td>
-        <td>${u.is_admin ? `<span class="pill red">Admin</span>` : u.is_blocked ? `<span class="pill no">Blocked</span>` : `<span class="pill ok">Buyer</span>`}</td>
-        <td class="actions">${self ? "" : `
-          ${u.is_admin ? `<button class="btn sm ghost" data-ua="${esc(u.id)}" data-on="0">Remove admin</button>` : `<button class="btn sm navy" data-ua="${esc(u.id)}" data-on="1">Make admin</button>`}
-          ${u.is_admin ? "" : u.is_blocked ? `<button class="btn sm gold" data-ub="${esc(u.id)}" data-on="0">Unblock</button>` : `<button class="btn sm ghost" data-ub="${esc(u.id)}" data-on="1">Block</button>`}`}</td></tr>`;
-    }).join("") : `<tr><td colspan="8" class="empty">No users found.</td></tr>`;
+        <td>${u.is_blocked ? `<span class="pill no">Blocked</span>` : `<span class="pill ok">Active</span>`}</td>
+        <td class="actions"><button class="btn sm navy" data-ua="${esc(u.id)}" data-on="1">Make admin</button>
+          ${u.is_blocked ? `<button class="btn sm gold" data-ub="${esc(u.id)}" data-on="0">Unblock</button>` : `<button class="btn sm ghost" data-ub="${esc(u.id)}" data-on="1">Block</button>`}</td></tr>`).join("")
+      : `<tr><td colspan="8" class="empty">${members.length ? "No members match." : "No members have joined yet."}</td></tr>`;
+
     $$("[data-ua]").forEach((b) => (b.onclick = async () => {
       const u = users.find((x) => x.id === b.dataset.ua), on = b.dataset.on === "1";
-      if (!confirm(on ? `Give ${u.email} full admin access?\nThey'll be able to manage figures, auctions, offers and users.` : `Remove admin access from ${u.email}?`)) return;
-      try { await admin.setAdmin(u.id, on); toast(on ? "Admin access granted" : "Admin access removed"); loadUsers(); } catch (e) { toast(e.message, true); }
+      if (!confirm(on ? `Give ${u.email} full admin access?\nThey'll be able to manage figures, auctions, offers and users.` : `Remove admin access from ${u.email}?\nThey'll become a regular member.`)) return;
+      try { await admin.setAdmin(u.id, on); toast(on ? "Moved to Admins" : "Moved to Members"); loadUsers(); } catch (e) { toast(e.message, true); }
     }));
     $$("[data-ub]").forEach((b) => (b.onclick = async () => {
       const u = users.find((x) => x.id === b.dataset.ub), on = b.dataset.on === "1";
       if (!confirm(on ? `Block ${u.email}? They won't be able to bid or make offers.` : `Unblock ${u.email}?`)) return;
-      try { await admin.setBlocked(u.id, on); toast(on ? "User blocked" : "User unblocked"); loadUsers(); } catch (e) { toast(e.message, true); }
+      try { await admin.setBlocked(u.id, on); toast(on ? "Member blocked" : "Member unblocked"); loadUsers(); } catch (e) { toast(e.message, true); }
     }));
   }
   $("#uq").addEventListener("input", debounce(renderUsers, 150));

@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Averia+Serif+Libre:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="apple-touch-icon" href="assets/img/logo-180.png">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261113f">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261113i">
 </head>
 <body>
   <main class="container">
@@ -102,31 +102,36 @@
           <!-- Users -->
           <div class="panel hidden" data-pane="users">
             <h2>Users</h2>
-            <form id="addAdminForm" class="notice" style="margin:0 0 16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+
+            <!-- ===== Admins ===== -->
+            <h3 class="users-head">🔑 Admins <span class="pill gold" id="adminCount">0</span></h3>
+            <p class="users-sub">People who can open this admin page and manage figures, auctions, offers, the gallery and users.</p>
+            <form id="addAdminForm" class="notice" style="margin:0 0 14px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
               <div style="flex:1;min-width:220px"><label for="adminEmail">Add a site admin</label><input id="adminEmail" type="email" required placeholder="their-email@example.com" autocomplete="off"></div>
               <button class="btn" type="submit">Add admin</button>
               <small style="flex-basis:100%;font-weight:600">If they already have an account they become admin straight away. If not, send them this admin page — they choose <b>“Invited by the owner? Create your admin account”</b> and use this email.</small>
             </form>
-            <div id="invitesWrap" class="hidden" style="margin-bottom:16px">
-              <label>Waiting to sign up</label>
-              <div class="table-wrap"><table><tbody id="inviteRows"></tbody></table></div>
-            </div>
-            <p style="color:var(--muted);font-weight:600;margin:0 0 12px">Everyone who signed up on the site. Blocked users can still browse but can't bid or make offers.</p>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Contact</th><th>Joined</th><th></th></tr></thead>
+              <tbody id="adminRows"></tbody><tbody id="inviteRows"></tbody></table></div>
+
+            <!-- ===== Members ===== -->
+            <h3 class="users-head" style="margin-top:34px">👥 Members <span class="pill ok" id="memberCount">0</span></h3>
+            <p class="users-sub">Everyone who joined on the site. Blocked members can still browse but can't bid or make offers.</p>
             <div class="row" style="margin-bottom:12px">
               <input id="uq" type="search" placeholder="Search name, email or mobile…">
-              <select id="ufilter"><option value="">All users</option><option value="admin">Admins</option><option value="blocked">Blocked</option><option value="active">Bidders &amp; offer makers</option></select>
+              <select id="ufilter"><option value="">All members</option><option value="active">Bidders &amp; offer makers</option><option value="blocked">Blocked</option></select>
             </div>
-            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Contact</th><th>Joined</th><th>Bids</th><th>Offers</th><th>Won</th><th>Role</th><th></th></tr></thead><tbody id="userRows"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Contact</th><th>Joined</th><th>Bids</th><th>Offers</th><th>Won</th><th>Status</th><th></th></tr></thead><tbody id="userRows"></tbody></table></div>
           </div>
         </section>
       </div>
     </div>
   </main>
 
-  <script src="config.js?v=20261113f"></script>
+  <script src="config.js?v=20261113i"></script>
   <script>window.APP_AREA = "admin";</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/common.js?v=20261113f"></script>
-  <script src="assets/js/admin.js?v=20261113f"></script>
+  <script src="assets/js/common.js?v=20261113i"></script>
+  <script src="assets/js/admin.js?v=20261113i"></script>
 </body>
 </html>

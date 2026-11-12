@@ -371,7 +371,7 @@
     foot.className = "site-footer";
     foot.innerHTML = `<div class="container">
       <span>\u00A9 ${new Date().getFullYear()} ${esc(C.STORE_NAME || "")} \u00B7 ${esc(C.STORE_TAGLINE || "")} \u00B7 <a class="admin-link" href="admin.html" target="_blank" rel="nofollow noopener">Admin</a></span>
-      <span>Powered by <a href="https://breadywebstudio.vercel.app" target="_blank" rel="noopener">Bready Web Studios</a></span></div>`;
+      <span>Powered by <a href="https://webstudios.alwaysbready.me/" target="_blank" rel="noopener">Bready Web Studios</a></span></div>`;
     document.body.appendChild(foot);
     if (active === "catalog" || active === "bidding" || active === "gallery") sailingShip();
     scrollFx();

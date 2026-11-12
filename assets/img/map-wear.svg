@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <!-- Wear on top of the map: scuffs, scratches, rubbed patches and the light side of the fold creases. -->
+  <defs>
+    <filter id="rub" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="3" seed="5" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="18" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="3"/>
+    </filter>
+    <filter id="scuff">
+      <feTurbulence type="fractalNoise" baseFrequency=".4 .02" numOctaves="2" seed="8" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4"/>
+    </filter>
+  </defs>
+
+  <!-- rubbed / worn patches where the paper's surface has lifted -->
+  <g fill="#FFF3D6" opacity=".35" filter="url(#rub)">
+    <ellipse cx="760" cy="120" rx="70" ry="22" transform="rotate(-8 760 120)"/>
+    <ellipse cx="1220" cy="500" rx="54" ry="18" transform="rotate(12 1220 500)"/>
+    <ellipse cx="420" cy="420" rx="46" ry="16" transform="rotate(-20 420 420)"/>
+    <ellipse cx="980" cy="780" rx="80" ry="20" transform="rotate(4 980 780)"/>
+    <ellipse cx="120" cy="250" rx="40" ry="14"/>
+    <ellipse cx="1500" cy="330" rx="36" ry="14" transform="rotate(30 1500 330)"/>
+  </g>
+
+  <!-- scratches and scuffs -->
+  <g fill="none" stroke="#FFF6E0" stroke-linecap="round" filter="url(#scuff)">
+    <path d="M610 210l140-34M640 226l90-20M1120 640l170 46M1150 662l80 20M260 520l120-80M290 540l60-38M860 860l210-30M70 760l90 30M1430 120l-60 90M700 470l60 10M1010 300l40-60"
+          stroke-width="1.6" stroke-opacity=".55"/>
+    <path d="M820 600l120-12M480 160l40 50M1290 420l90-40M360 810l70-14M1540 700l-40 80"
+          stroke-width="1" stroke-opacity=".45"/>
+  </g>
+  <g fill="none" stroke="#5A3618" stroke-linecap="round" stroke-opacity=".25" filter="url(#scuff)">
+    <path d="M612 213l138-34M1122 643l168 45M262 523l118-79M862 863l208-30" stroke-width="1"/>
+  </g>
+
+  <!-- light side of the fold creases -->
+  <g stroke="#FFF4DA" stroke-opacity=".5" stroke-width="1.6" fill="none">
+    <path d="M536 0C534 300 539 600 535 900M1070 0C1072 300 1067 600 1071 900M0 455C400 452 1200 458 1600 454"/>
+  </g>
+  <!-- small creases where the folds cross -->
+  <g stroke="#6B4020" stroke-opacity=".3" stroke-width="1.2" fill="none">
+    <path d="M520 440l26 22M548 440l-22 24M1054 440l26 22M1082 442l-24 20"/>
+  </g>
+</svg>

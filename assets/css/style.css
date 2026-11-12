@@ -610,27 +610,39 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
   .slide{border-width:4px; border-radius:16px}
 }
 
-/* ===== Gallery: the whole section is an old brown treasure map ===== */
-:root{ --map-edge:#A67B48; --ink:#5B3A1E }   /* --map-edge: the parchment colour at the map's top edge */
-/* the sky warms like a sunset and melts into the parchment colour */
+/* ===== Gallery: cloudy sky section with the old map unrolled as a scroll ===== */
+:root{ --map-edge:#2A1A0C; --ink:#5B3A1E; --scroll-gap:28px }
+/* the header keeps its plain sky (no fade) so it runs straight into the section's sky */
 .hero:has(+ .gallery-wrap){
   background:
-    linear-gradient(180deg, transparent 50%, rgba(232,160,84,.22) 68%, rgba(190,136,76,.7) 86%, var(--map-edge) 100%),
+    radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%),
     url("../img/hero-sky.svg") center/cover no-repeat,
     #0A84DE;
   background-position:center, center calc(50% + var(--sky-shift, 0px)), center;
 }
-/* the map fills the full width of the gallery section, and its top reaches up into the sky,
-   fading in gradually so there's no line between the two */
-.hero + .container.gallery-wrap{position:relative; isolation:isolate; color:var(--ink); box-shadow:none; clip-path:none; background:none}
-.hero + .container.gallery-wrap::before{content:""; position:absolute; z-index:-1; top:-140px; bottom:0; left:50%; width:100vw; translate:-50% 0;
-  background:
-    linear-gradient(180deg, var(--map-edge) 140px, rgba(166,123,72,.6) 200px, rgba(166,123,72,.2) 280px, transparent 380px),
-    url("../img/old-map.svg") center/cover no-repeat,
-    #C9A26A;
-  -webkit-mask-image:linear-gradient(180deg, transparent 0, rgba(0,0,0,.5) 70px, #000 140px);
-  mask-image:linear-gradient(180deg, transparent 0, rgba(0,0,0,.5) 70px, #000 140px)}
-main:has(> .gallery-wrap){overflow-x:clip}   /* the full-width map never adds a sideways scroll bar */
+main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measure the page width without the scroll bar */
+.hero + .container.gallery-wrap{position:relative; isolation:isolate; color:var(--ink); box-shadow:none; clip-path:none; background:none;
+  padding-top:64px; padding-bottom:80px}
+/* the same cloud wallpaper as the header, across the full width */
+.hero + .container.gallery-wrap::before{content:""; position:absolute; z-index:-2; top:0; bottom:0; left:50%; width:100vw; width:100cqw; translate:-50% 0;
+  background:#0A84DE url("../img/hero-sky.svg") center top / max(1600px, 100%) auto repeat-y}
+/* the map: an old parchment scroll, rolled at both ends, reaching almost to the section's edges.
+   The frame is the poster scroll turned on its side (9-slice: rolls keep their shape, the middle stretches). */
+.map-scroll{position:absolute; z-index:-1; top:18px; bottom:22px; left:50%; translate:-50% 0;
+  width:calc(100vw - 2 * var(--scroll-gap)); width:calc(100cqw - 2 * var(--scroll-gap));
+  border-style:solid; border-width:38px 72px 38px 60px;
+  border-image:url("../img/scroll-landscape.webp") 93 180 93 147 fill / 38px 72px 38px 60px stretch;
+  filter:drop-shadow(0 3px 2px rgba(20,40,70,.35)) drop-shadow(0 22px 24px rgba(8,40,80,.45))}
+/* the map is inked onto the parchment (multiply), then worn: scuffs, scratches, rubbed spots, fold creases */
+.map-scroll .map-ink, .map-scroll .map-wear{position:absolute; inset:-14px -6px; pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 54% 56% at 50% 50%, #000 72%, transparent 100%);
+  mask-image:radial-gradient(ellipse 54% 56% at 50% 50%, #000 72%, transparent 100%)}
+.map-scroll .map-ink{background:url("../img/old-map.svg") center/cover no-repeat; mix-blend-mode:multiply; opacity:.95}
+.map-scroll .map-wear{background:url("../img/map-wear.svg") center/cover no-repeat}
+@media (max-width:640px){
+  :root{ --scroll-gap:8px }
+  .map-scroll{border-width:22px 40px 22px 34px; border-image-width:22px 40px 22px 34px}
+}
 /* the carousel sits straight on the map */
 .carousel{border-radius:0; overflow:hidden; background:none;
   /* soft edges: photos turning away at the sides, and anything at the top or bottom, fade into the map */
@@ -697,7 +709,7 @@ main:has(> .gallery-wrap){overflow-x:clip}   /* the full-width map never adds a 
 }
 
 /* ----- magic: every card floats and bounces, wrapped in a colourful aura ----- */
-.gallery-wrap .slide{overflow:visible; animation:card-float 3.8s ease-in-out var(--float-delay, 0s) infinite}
+.gallery-wrap .slide{overflow:visible}   /* side cards stay still; only the selected card floats (below) */
 @keyframes card-float{
   0%, 100%{translate:-50% -50%}
   42%{translate:-50% calc(-50% - 16px)}          /* drifts up */
@@ -707,11 +719,25 @@ main:has(> .gallery-wrap){overflow-x:clip}   /* the full-width map never adds a 
 }
 .gallery-wrap .slide::before{content:""; position:absolute; inset:-16px; z-index:-1; border-radius:30px; pointer-events:none;
   background:conic-gradient(from var(--aura-turn, 0deg), #FF4FD8, #4FE3FF, #FFD84F, #7CFF6B, #A66BFF, #FF4FD8);
-  filter:blur(20px); opacity:.55; animation:aura-pulse 2.6s ease-in-out var(--float-delay, 0s) infinite}
-.gallery-wrap .slide.is-center::before{inset:-22px; opacity:.85; animation-duration:2s}
+  filter:blur(20px); opacity:.5}
+.gallery-wrap .slide.is-center::before{inset:-22px; opacity:.85; animation:aura-pulse 2s ease-in-out infinite}
 @keyframes aura-pulse{50%{opacity:.95; scale:1.07}}
 /* the main card keeps its own gold glow on top of the aura */
-.gallery-wrap .slide.is-center{animation:card-float 3.8s ease-in-out var(--float-delay, 0s) infinite, frame-glow 2.8s ease-in-out infinite alternate}
+.gallery-wrap .slide.is-center{animation:card-float 3.8s ease-in-out infinite, frame-glow 2.8s ease-in-out infinite alternate}
+
+/* ----- the gallery sits centred inside the map ----- */
+.hero + .container.gallery-wrap{padding-top:84px; padding-bottom:84px}
+.gallery-wrap .map-scroll{top:22px; bottom:22px}
+/* the carousel is just tall enough for a card, its float and its aura, with the card in the middle */
+.gallery-wrap .carousel{height:min(590px, calc(71vw + 130px))}
+.gallery-wrap .slide, .gallery-wrap .car-nav{top:50%}
+/* tiny play / slider / counter bar */
+.gallery-wrap .car-caption{margin-top:6px; min-height:0; font-size:.9rem}
+.gallery-wrap .car-caption:empty{display:none}
+.gallery-wrap .car-bar{gap:8px; margin-top:8px; max-width:240px}
+.gallery-wrap .car-bar .btn{padding:3px 9px; font-size:.68rem; border-width:1.5px; box-shadow:0 2px 0 var(--navy)}
+.gallery-wrap .car-bar input[type=range]{height:14px; opacity:.8}
+.gallery-wrap .car-count{font-size:.8rem; min-width:0; color:var(--ink)}
 
 /* text under the carousel, inked on the map */
 .gallery-wrap .car-caption{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}

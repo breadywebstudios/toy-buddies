@@ -601,8 +601,6 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 .slide:not(.is-center){cursor:pointer}
 .slide:not(.is-center) img{filter:saturate(.85) brightness(.92)}
 .slide.is-center{box-shadow:0 0 0 3px var(--navy), 0 10px 0 3px var(--navy), 0 0 0 12px rgba(254,193,66,.35), 0 44px 54px -24px rgba(11,22,39,.7)}
-.car-floor{position:absolute; left:50%; bottom:4%; width:min(620px, 86%); height:46px; translate:-50% 0;
-  background:radial-gradient(ellipse at center, rgba(11,22,39,.26), transparent 70%); filter:blur(3px); pointer-events:none}
 .car-nav{
   position:absolute; top:47%; translate:0 -50%; z-index:200; width:58px; height:58px; border-radius:50%;
   display:grid; place-items:center; cursor:pointer; font:inherit; font-size:2rem; font-weight:800; line-height:1; padding:0 0 4px;
@@ -624,78 +622,65 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
   .slide{border-width:4px; border-radius:16px}
 }
 
-/* ===== Gallery: cloudy sky section with the old map unrolled as a scroll ===== */
+/* ===== Gallery: sky section, old map scroll, trading cards and the teleporter beam =====
+   Performance notes: every looping animation below only changes transform or opacity (cheap, done by the graphics chip),
+   except the small ring "laser trace" lights. Phones and touch screens get lighter versions of the heavy effects. */
 :root{ --map-edge:#2A1A0C; --ink:#5B3A1E; --scroll-gap:28px }
-/* the header keeps its plain sky (no fade) so it runs straight into the section's sky */
 .hero:has(+ .gallery-wrap)::after{background:radial-gradient(ellipse 46% 52% at 50% 48%, rgba(8,40,80,.32), transparent 72%)}
 main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measure the page width without the scroll bar */
 .hero + .container.gallery-wrap{position:relative; isolation:isolate; color:var(--ink); box-shadow:none; clip-path:none; background:none;
-  padding-top:64px; padding-bottom:80px}
-/* the same cloud wallpaper as the header, across the full width */
+  padding-top:84px; padding-bottom:84px}
+/* the same drifting cloud wallpaper as the header, across the full width */
 .hero + .container.gallery-wrap::before{content:""; position:absolute; z-index:-2; top:0; bottom:0; left:calc(50% - 50vw); left:calc(50% - 50cqw);
   width:calc(100vw + 1600px); width:calc(100cqw + 1600px);
   background:#0A84DE url("../img/hero-sky.svg") 0 0 / 1600px auto repeat; animation:clouds-drift 150s linear infinite}
-@media (prefers-reduced-motion:reduce){ .hero + .container.gallery-wrap::before{animation:none} }
-/* the map: an old parchment scroll, rolled at both ends, reaching almost to the section's edges.
-   The frame is the poster scroll turned on its side (9-slice: rolls keep their shape, the middle stretches). */
-.map-scroll{position:absolute; z-index:-1; top:18px; bottom:22px; left:50%; translate:-50% 0;
+
+/* the old map: a parchment scroll (the poster scroll on its side, 9-slice) reaching almost to the section's edges */
+.map-scroll{position:absolute; z-index:-1; top:22px; bottom:22px; left:50%; translate:-50% 0;
   width:calc(100vw - 2 * var(--scroll-gap)); width:calc(100cqw - 2 * var(--scroll-gap));
   border-style:solid; border-width:38px 72px 38px 60px;
   border-image:url("../img/scroll-landscape.webp") 93 180 93 147 fill / 38px 72px 38px 60px stretch;
   filter:drop-shadow(0 3px 2px rgba(20,40,70,.35)) drop-shadow(0 22px 24px rgba(8,40,80,.45))}
-/* the map is inked onto the parchment (multiply), then worn: scuffs, scratches, rubbed spots, fold creases */
 .map-scroll .map-ink, .map-scroll .map-wear{position:absolute; inset:-14px -6px; pointer-events:none;
   -webkit-mask-image:radial-gradient(ellipse 54% 56% at 50% 50%, #000 72%, transparent 100%);
   mask-image:radial-gradient(ellipse 54% 56% at 50% 50%, #000 72%, transparent 100%)}
 .map-scroll .map-ink{background:url("../img/old-map.svg") center/cover no-repeat; mix-blend-mode:multiply; opacity:.95}
 .map-scroll .map-wear{background:url("../img/map-wear.svg") center/cover no-repeat}
-@media (max-width:640px){
-  :root{ --scroll-gap:8px }
-  .map-scroll{border-width:22px 40px 22px 34px; border-image-width:22px 40px 22px 34px}
-}
-/* the carousel sits straight on the map */
-.carousel{border-radius:0; overflow:hidden; background:none;
-  /* soft edges: photos turning away at the sides, and anything at the top or bottom, fade into the map */
+
+/* the carousel sits straight on the map; on computers its edges fade softly into the map */
+.gallery-wrap .carousel{height:min(780px, calc(71vw + 290px)); border-radius:0; overflow:hidden; background:none;
   -webkit-mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 92%, transparent);
   -webkit-mask-composite:source-in;
   mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(180deg, transparent, #000 5%, #000 92%, transparent);
   mask-composite:intersect}
-.carousel:focus-visible{box-shadow:inset 0 0 0 3px var(--gold)}
-.car-space{position:absolute; inset:0; pointer-events:none; overflow:hidden}
-/* warm lantern light behind the main photo */
-.car-spot{position:absolute; left:50%; top:46%; width:min(680px, 110%); aspect-ratio:1; translate:-50% -50%;
-  background:radial-gradient(circle, rgba(255,236,190,.55) 0%, rgba(255,214,140,.22) 36%, transparent 64%);
-  mix-blend-mode:soft-light; animation:spot-pulse 4.5s ease-in-out infinite}
-@keyframes spot-pulse{50%{opacity:.75; scale:.95}}
+.gallery-wrap .carousel:focus-visible{box-shadow:inset 0 0 0 3px var(--gold)}
 
-/* photos pinned on the map: the further from the middle, the more faded and sepia */
-.gallery-wrap .slide{
-  border:4px solid #F1E2BF; background:#3A2614;
-  box-shadow:0 0 0 1px rgba(60,34,14,.7), 0 26px 40px -14px rgba(30,14,4,.85);
-  filter:brightness(calc(1 - var(--a, 0) * .12)) sepia(calc(var(--a, 0) * .35));
-  transition:transform .75s var(--spring), opacity .45s ease, filter .45s ease, box-shadow .4s ease, border-color .4s ease;
-}
+/* ----- each photo is a collectible trading card: polished metal rim, gold foil, photo window, nameplate ----- */
+.gallery-wrap .slide{top:50%; overflow:visible; display:flex; flex-direction:column; padding:14px 14px 0; border-radius:20px;
+  border:7px solid transparent; outline:3px solid var(--navy); outline-offset:0;
+  background:
+    linear-gradient(135deg, #FFE9A8 0%, #C8922E 22%, #FFF4CC 42%, #B07A1F 62%, #FFE08A 82%, #8A5A12 100%) padding-box,
+    linear-gradient(135deg, #4A2E06 0%, #B8862E 9%, #FFF8DC 14%, #E0B04A 19%, #6E4510 30%, #C9963A 42%, #FFFBE8 48%, #D8A746 53%,
+      #5C3A08 64%, #B07A1F 74%, #FFF3C4 81%, #C08A2E 87%, #4A2E06 100%) border-box;
+  background-size:100% 100%, 220% 220%;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(0,0,0,.35), 0 26px 40px -14px rgba(30,14,4,.85);
+  filter:brightness(calc(1 - var(--a, 0) * .12)) sepia(calc(var(--a, 0) * .35));   /* side cards fade towards sepia */
+  transition:transform .75s var(--spring), opacity .45s ease, filter .45s ease}
 .gallery-wrap .slide:not(.is-center) img{filter:none}
-.gallery-wrap .slide.is-center{
-  border-color:var(--gold); filter:none;   /* no filter on the main photo: keeps it crisp */
-  box-shadow:0 0 0 2px var(--ink), 0 0 26px 6px rgba(254,193,66,.55), 0 34px 50px -14px rgba(30,14,4,.9);
-  animation:frame-glow 2.8s ease-in-out infinite alternate;
-}
-@keyframes frame-glow{to{box-shadow:0 0 0 2px var(--ink), 0 0 40px 12px rgba(254,193,66,.7), 0 34px 50px -14px rgba(30,14,4,.9)}}
-/* a light sheen sweeps across the main photo */
-.gallery-wrap .slide::after{content:""; position:absolute; inset:0; z-index:2; pointer-events:none; opacity:0;
-  background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.26) 48%, transparent 60%); translate:-120% 0}
-.gallery-wrap .slide.is-center::after{opacity:1; animation:sheen 5s ease-in-out infinite}
-@keyframes sheen{0%, 55%{translate:-120% 0} 85%, 100%{translate:120% 0}}
 .car-ring.dragging .slide{transition:opacity .3s ease, filter .3s ease}
-
-/* ----- each photo is a collectible trading card ----- */
-.gallery-wrap .slide{
-  border:7px solid #7A4E0E; outline:3px solid var(--navy); outline-offset:0;   /* bold outer edge: deep-gold rim + navy outline */
-  border-radius:20px; padding:14px 14px 0; display:flex; flex-direction:column;
-  background:linear-gradient(135deg, #FFE9A8 0%, #C8922E 22%, #FFF4CC 42%, #B07A1F 62%, #FFE08A 82%, #8A5A12 100%);
-}
-.card-photo{position:relative; aspect-ratio:4 / 5; overflow:hidden; border-radius:9px; background:#1A1108;
+/* the selected card: crisp (no filter), floats and bounces, and its edges glow in rainbow colours */
+.gallery-wrap .slide.is-center{filter:none; animation:card-float 3.8s ease-in-out infinite;
+  box-shadow:-10px -10px 26px 3px rgba(255,79,216,.65), 10px -10px 26px 3px rgba(79,227,255,.7),
+     10px 10px 26px 3px rgba(255,216,79,.7), -10px 10px 26px 3px rgba(124,255,107,.65),
+     0 0 50px 12px rgba(160,245,255,.45), 0 36px 50px -14px rgba(30,14,4,.85)}
+@keyframes card-float{
+  0%, 100%{translate:-50% -50%}
+  42%{translate:-50% calc(-50% - 16px)}
+  68%{translate:-50% calc(-50% + 3px)}
+  80%{translate:-50% calc(-50% - 5px)}
+  90%{translate:-50% calc(-50% + 1px)}}
+.card-photo{position:relative; aspect-ratio:4 / 5; overflow:hidden; border-radius:9px;
+  background:linear-gradient(135deg, #3A2614, #5A3C1E 50%, #3A2614);
   box-shadow:0 0 0 2px var(--map-edge), 0 0 0 5px rgba(255,244,204,.55), 0 0 0 6px rgba(138,90,18,.6), inset 0 0 0 1px rgba(255,255,255,.25)}
 .card-photo img{position:relative; display:block; width:100%; height:100%; object-fit:contain}
 .card-badge{position:absolute; top:2px; left:2px; z-index:3; width:52px; height:52px; border-radius:50%; overflow:hidden;
@@ -707,53 +692,13 @@ main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measu
 .card-plate b{font-family:var(--font-display); font-weight:400; font-size:1.12rem; letter-spacing:.03em; text-transform:uppercase;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; max-width:64%}
 .card-plate span{font-weight:800; font-size:.78rem; color:var(--navy); white-space:nowrap}
-/* the bold rim stays deep bronze on every card, including the selected one */
-.gallery-wrap .slide, .gallery-wrap .slide.is-center{border-color:#7A4E0E}
-/* holographic rainbow shimmer across the middle card */
-.gallery-wrap .slide::after{border-radius:inherit}
-.gallery-wrap .slide.is-center::after{
-  background:linear-gradient(115deg, transparent 18%, rgba(255,90,170,.35) 32%, rgba(255,220,90,.35) 42%, rgba(90,255,200,.35) 52%, rgba(90,160,255,.35) 62%, transparent 78%) 0 0 / 260% 100%;
-  translate:none; mix-blend-mode:overlay; opacity:.85; animation:holo 4.5s ease-in-out infinite alternate}
-@keyframes holo{from{background-position:100% 0} to{background-position:0 0}}
-@media (max-width:640px){
-  .gallery-wrap .slide{padding:9px 9px 0; border-width:5px; outline-width:3px; border-radius:15px}
-  .card-badge{width:40px; height:40px}   .card-plate{height:38px; margin:9px -9px 0; padding:0 10px; border-radius:0 0 11px 11px}
-  .card-plate b{font-size:.92rem} .card-plate span{font-size:.68rem}
-}
+/* holographic shimmer on the selected card's photo: a rainbow band sliding across (moved, never repainted) */
+.gallery-wrap .slide.is-center .card-photo::before{content:""; position:absolute; z-index:2; top:0; bottom:0; left:-100%; width:300%; pointer-events:none;
+  background:linear-gradient(105deg, transparent 30%, rgba(255,90,170,.3) 40%, rgba(255,220,90,.3) 46%, rgba(90,255,200,.3) 52%, rgba(90,160,255,.3) 58%, transparent 68%);
+  mix-blend-mode:overlay; animation:holo-sweep 4.5s ease-in-out infinite alternate}
+@keyframes holo-sweep{from{transform:translateX(-22%)} to{transform:translateX(22%)}}
 
-/* ----- magic: every card floats and bounces, wrapped in a colourful aura ----- */
-.gallery-wrap .slide{overflow:visible}   /* side cards stay still; only the selected card floats (below) */
-@keyframes card-float{
-  0%, 100%{translate:-50% -50%}
-  42%{translate:-50% calc(-50% - 16px)}          /* drifts up */
-  68%{translate:-50% calc(-50% + 3px)}           /* drops back down... */
-  80%{translate:-50% calc(-50% - 5px)}           /* ...and bounces */
-  90%{translate:-50% calc(-50% + 1px)}
-}
-.gallery-wrap .slide::before{content:""; position:absolute; inset:-16px; z-index:-1; border-radius:30px; pointer-events:none;
-  background:conic-gradient(from var(--aura-turn, 0deg), #FF4FD8, #4FE3FF, #FFD84F, #7CFF6B, #A66BFF, #FF4FD8);
-  filter:blur(20px); opacity:.5}
-.gallery-wrap .slide.is-center::before{inset:-22px; opacity:.85; animation:aura-pulse 2s ease-in-out infinite}
-@keyframes aura-pulse{50%{opacity:.95; scale:1.07}}
-/* the main card keeps its own gold glow on top of the aura */
-.gallery-wrap .slide.is-center{animation:card-float 3.8s ease-in-out infinite, frame-glow 2.8s ease-in-out infinite alternate}
-
-/* ----- the gallery sits centred inside the map ----- */
-.hero + .container.gallery-wrap{padding-top:84px; padding-bottom:84px}
-.gallery-wrap .map-scroll{top:22px; bottom:22px}
-/* the carousel is just tall enough for a card, its float and its aura, with the card in the middle */
-.gallery-wrap .carousel{height:min(590px, calc(71vw + 130px))}
-.gallery-wrap .slide, .gallery-wrap .car-nav{top:50%}
-/* tiny play / slider / counter bar */
-.gallery-wrap .car-caption{margin-top:6px; min-height:0; font-size:.9rem}
-.gallery-wrap .car-caption:empty{display:none}
-.gallery-wrap .car-bar{gap:8px; margin-top:8px; max-width:240px}
-.gallery-wrap .car-bar .btn{padding:3px 9px; font-size:.68rem; border-width:1.5px; box-shadow:0 2px 0 var(--navy)}
-.gallery-wrap .car-bar input[type=range]{height:14px; opacity:.8}
-.gallery-wrap .car-count{font-size:.8rem; min-width:0; color:var(--ink)}
-
-/* ----- smooth photo loading: a soft placeholder until the photo is fully ready, then it fades in ----- */
-.card-photo{background:linear-gradient(135deg, #3A2614, #5A3C1E 50%, #3A2614)}
+/* smooth photo loading: a soft placeholder until the photo is fully ready, then it fades in */
 .card-photo img, .card-photo .slide-bg{opacity:0; transition:opacity .45s ease}
 .slide.loaded .card-photo img, .slide.loaded .card-photo .slide-bg{opacity:1}
 .card-photo::after{content:""; position:absolute; inset:0; pointer-events:none; transition:opacity .3s ease;
@@ -762,35 +707,115 @@ main:has(> .gallery-wrap){container-type:inline-size}   /* lets the scroll measu
 .slide.loaded .card-photo::after{opacity:0; animation:none}
 @keyframes photo-wait{from{background-position:100% 0} to{background-position:-150% 0}}
 
-/* ----- phones and touch screens: same look, far less work for the graphics chip ----- */
-@media (max-width:640px), (pointer:coarse){
-  .gallery-wrap .carousel{-webkit-mask-image:none; mask-image:none}                 /* no soft-edge mask (forced a full redraw every frame) */
-  .gallery-wrap .slide::before{display:none}                                       /* aura only on the middle card */
-  .gallery-wrap .slide.is-center::before{display:block; inset:-12px; filter:blur(12px); animation:none; opacity:.8}
-  .gallery-wrap .card-photo .slide-bg{display:none}                                /* no blurred photo behind letterboxed shots */
-  .gallery-wrap .slide.is-center{animation:card-float 3.8s ease-in-out infinite;    /* glow is steady instead of animated */
-    box-shadow:0 0 0 2px var(--ink), 0 0 26px 6px rgba(254,193,66,.55), 0 30px 40px -14px rgba(30,14,4,.85)}
-  .gallery-wrap .slide.is-center::after{mix-blend-mode:normal; opacity:.16}
-  .gallery-wrap .slide{filter:none; will-change:transform}
-}
+/* tiny play / slider / counter bar, inked on the map */
+.gallery-wrap .car-nav{top:50%}
+.gallery-wrap .car-caption{margin-top:6px; min-height:0; font-size:.9rem; color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
+.gallery-wrap .car-caption:empty{display:none}
+.gallery-wrap .car-bar{gap:8px; margin-top:8px; max-width:240px}
+.gallery-wrap .car-bar .btn{padding:3px 9px; font-size:.68rem; border-width:1.5px; box-shadow:0 2px 0 var(--navy)}
+.gallery-wrap .car-bar input[type=range]{height:14px; opacity:.8}
+.gallery-wrap .car-count{font-size:.8rem; min-width:0; color:var(--ink)}
+.gallery-wrap .car-empty{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
 
-/* ----- phones: tighter gallery spacing, card number clear of the stripes ----- */
+/* ----- the teleporter beam behind the selected card: white laser rings, a light column, streaks, sparks, lightning ----- */
+.car-portal{--cw:min(384px, 60vw); --ch:calc(var(--cw) * 1.25 + 20px);
+  position:absolute; left:50%; top:50%; width:calc(var(--cw) + 150px); height:calc(var(--ch) + 220px);
+  translate:-50% -50%; transform:translateZ(-30px); pointer-events:none}   /* in the 3D ring: behind the card, in front of the side cards */
+.car-portal > i{position:absolute; display:block}
+.portal-dark{inset:-30px 0; border-radius:50%; background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(6,10,30,.45), rgba(6,10,30,.2) 55%, transparent 75%)}
+.portal-beam{left:2%; right:2%; top:26px; bottom:26px; filter:blur(10px); will-change:opacity; animation:beam-pulse 2.8s ease-in-out infinite;
+  background:linear-gradient(90deg, transparent 0, rgba(255,79,216,.55) 8%, rgba(79,227,255,.75) 18%, rgba(240,255,255,.9) 30% 70%, rgba(255,216,79,.75) 82%, rgba(124,255,107,.55) 92%, transparent 100%)}
+@keyframes beam-pulse{50%{opacity:.7}}
+.portal-streaks{left:3%; right:3%; top:30px; bottom:30px; opacity:.8;
+  background:repeating-linear-gradient(90deg, transparent 0 22px, rgba(255,255,255,.55) 22px 24px, transparent 24px 37px, rgba(166,107,255,.5) 37px 38px, transparent 38px 61px, rgba(79,227,255,.55) 61px 63px, transparent 63px 80px);
+  -webkit-mask:linear-gradient(transparent, #000 25%, #000 75%, transparent); mask:linear-gradient(transparent, #000 25%, #000 75%, transparent);
+  animation:streak-flicker 1.7s steps(3) infinite}
+@keyframes streak-flicker{33%{opacity:.45} 66%{opacity:.9}}
+.portal-sparks{left:2%; right:2%; top:20px; bottom:20px; overflow:hidden;
+  -webkit-mask:linear-gradient(transparent, #000 20%, #000 80%, transparent); mask:linear-gradient(transparent, #000 20%, #000 80%, transparent)}
+.portal-sparks::before{content:""; position:absolute; left:0; right:0; top:0; height:200%;
+  background-image:
+    radial-gradient(2px 2px at 12% 8%, #fff, transparent), radial-gradient(2.5px 2.5px at 30% 22%, #4FE3FF, transparent),
+    radial-gradient(2px 2px at 52% 14%, #FFD84F, transparent), radial-gradient(2px 2px at 74% 30%, #FF4FD8, transparent),
+    radial-gradient(1.5px 1.5px at 88% 6%, #fff, transparent), radial-gradient(2px 2px at 20% 40%, #7CFF6B, transparent),
+    radial-gradient(2.5px 2.5px at 64% 44%, #fff, transparent), radial-gradient(2px 2px at 42% 36%, #A66BFF, transparent);
+  background-size:100% 50%; animation:sparks-rise 6s linear infinite}
+@keyframes sparks-rise{to{transform:translateY(-50%)}}
+
+/* the rings: three solid white laser lines (lightsaber-style white-hot core with glow) */
+.portal-ring{left:0; right:0; height:64px; border-radius:50%; border:3px solid #fff;
+  background:radial-gradient(ellipse at center, rgba(255,255,255,.22), rgba(255,255,255,.06) 55%, transparent 72%);
+  box-shadow:0 0 2px 1px #fff, 0 0 7px 3px rgba(255,255,255,.95), 0 0 16px 6px rgba(235,245,255,.8), 0 0 34px 12px rgba(200,225,255,.45),
+             inset 0 0 2px 1px #fff, inset 0 0 8px 3px rgba(255,255,255,.85), inset 0 0 18px 6px rgba(225,240,255,.4)}
+.portal-ring::before, .portal-ring::after{content:""; position:absolute; border-radius:50%; pointer-events:none; border:3px solid #fff;
+  box-shadow:0 0 2px 1px #fff, 0 0 7px 3px rgba(255,255,255,.95), 0 0 16px 5px rgba(225,240,255,.75), inset 0 0 7px 2px rgba(255,255,255,.75)}
+.portal-ring::before{inset:17% 13%}
+.portal-ring::after{inset:36% 31%; border-width:2.5px}
+.portal-ring.top{top:0; transform:scale(.86); opacity:.85}
+.portal-ring.bottom{bottom:0; animation:pad-pulse 2.8s ease-in-out infinite}
+@keyframes pad-pulse{50%{scale:1.05; opacity:1}}
+/* laser lights tracing the ring outlines */
+@property --trace{syntax:"<angle>"; inherits:false; initial-value:0deg}
+.portal-ring .trace{position:absolute; inset:-4px; border-radius:50%; border:4px solid transparent; pointer-events:none;
+  background:conic-gradient(from var(--trace),
+    transparent 0 50%, rgba(255,255,255,0) 50%, rgba(255,255,255,.9) 63%, #fff 67.5%, transparent 68%,
+    transparent 0 82%, rgba(255,255,255,0) 82%, rgba(255,255,255,.9) 95%, #fff 99.5%, transparent 100%) border-box;
+  -webkit-mask:linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
+  animation:laser-trace 2.6s linear infinite}
+.portal-ring .trace.inner{inset:calc(36% - 2px) calc(31% - 2px); border-width:2.5px; animation-duration:1.9s; animation-direction:reverse}
+.portal-ring.bottom .trace{animation-duration:2.2s}
+@keyframes laser-trace{to{--trace:360deg}}
+/* lightning: white bolts with an electric blue-violet halo, each striking on its own rhythm */
+.portal-bolt{top:40px; bottom:40px; width:60px; opacity:0; will-change:opacity; pointer-events:none;
+  background:url("../img/lightning-a.svg") center/100% 100% no-repeat;
+  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px rgba(120,150,255,1)) drop-shadow(0 0 14px rgba(110,80,255,.85))}
+.portal-bolt.b1{left:1%; animation:bolt-strike 2.3s steps(1) infinite}
+.portal-bolt.b2{right:1%; background-image:url("../img/lightning-b.svg"); animation:bolt-strike 3.1s steps(1) .7s infinite}
+.portal-bolt.b3{left:8%; width:44px; transform:scaleX(-1); background-image:url("../img/lightning-b.svg"); animation:bolt-strike 2.7s steps(1) 1.3s infinite}
+.portal-bolt.b4{right:8%; width:44px; transform:scaleX(-1); animation:bolt-strike 3.7s steps(1) .3s infinite}
+@keyframes bolt-strike{0%, 61%{opacity:0} 62%{opacity:1} 65%{opacity:.15} 67%{opacity:1} 71%{opacity:.6} 74%, 100%{opacity:0}}
+/* computers: the rings hum like a lightsaber */
+@media (hover:hover) and (pointer:fine){
+  .portal-ring{animation:saber-hum .11s steps(2) infinite alternate}
+  .portal-ring.bottom{animation:saber-hum .11s steps(2) infinite alternate, pad-pulse 2.8s ease-in-out infinite}
+}
+@keyframes saber-hum{to{opacity:.9}}
+
+/* ----- phones & touch screens: same look, much less work for the graphics chip ----- */
+@media (max-width:640px), (pointer:coarse){
+  .gallery-wrap .carousel{-webkit-mask-image:none; mask-image:none}
+  .gallery-wrap .card-photo .slide-bg{display:none}
+  .gallery-wrap .slide{filter:none; will-change:transform}
+  .gallery-wrap .slide.is-center{box-shadow:
+    -7px -7px 18px 2px rgba(255,79,216,.65), 7px -7px 18px 2px rgba(79,227,255,.7),
+     7px 7px 18px 2px rgba(255,216,79,.7), -7px 7px 18px 2px rgba(124,255,107,.65),
+     0 0 34px 8px rgba(160,245,255,.4), 0 26px 36px -12px rgba(30,14,4,.85)}
+  .gallery-wrap .slide.is-center .card-photo::before{mix-blend-mode:normal; opacity:.35}
+  .car-portal{width:calc(var(--cw) + 90px); height:calc(var(--ch) + 150px)}
+  .portal-beam{filter:blur(8px)}
+  .portal-ring{height:44px; border-width:2.5px}
+  .portal-ring::before, .portal-ring::after{border-width:2px}
+  .portal-bolt{width:36px; top:24px; bottom:24px; filter:drop-shadow(0 0 4px rgba(110,80,255,.9))}
+  .portal-bolt.b3, .portal-bolt.b4{width:26px}
+}
 @media (max-width:640px){
+  :root{ --scroll-gap:8px }
+  .map-scroll{border-width:22px 40px 22px 34px; border-image-width:22px 40px 22px 34px}
   .hero:has(+ .gallery-wrap){padding-bottom:28px}
   .hero + .container.gallery-wrap{padding-top:44px; padding-bottom:52px}
   .gallery-wrap .map-scroll{top:12px; bottom:12px}
-  .card-plate{background:linear-gradient(100deg, var(--navy) 0 52%, var(--orange) 52% 56%, var(--navy) 56% 60%, var(--gold) 60%)}
-  .card-plate b{max-width:50%}
+  .gallery-wrap .slide{padding:9px 9px 0; border-width:5px; outline-width:3px; border-radius:15px}
+  .card-badge{width:40px; height:40px}
+  .card-plate{height:38px; margin:9px -9px 0; padding:0 10px; border-radius:0 0 11px 11px;
+    background:linear-gradient(100deg, var(--navy) 0 52%, var(--orange) 52% 56%, var(--navy) 56% 60%, var(--gold) 60%)}
+  .card-plate b{font-size:.92rem; max-width:50%}
   .card-plate span{font-size:.62rem}
 }
-
-/* text under the carousel, inked on the map */
-.gallery-wrap .car-caption{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
-.gallery-wrap .car-count{color:var(--ink)}
-.gallery-wrap .car-empty{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
-
 @media (prefers-reduced-motion:reduce){
-  .car-spot, .gallery-wrap .slide, .gallery-wrap .slide::before, .gallery-wrap .slide.is-center, .gallery-wrap .slide.is-center::after{animation:none}
+  .hero + .container.gallery-wrap::before, .gallery-wrap .slide, .gallery-wrap .slide.is-center,
+  .gallery-wrap .slide.is-center .card-photo::before, .car-portal *, .portal-sparks::before, .portal-ring .trace{animation:none}
+  .portal-bolt{animation:none; opacity:0}
 }
 
 /* full-screen viewer */

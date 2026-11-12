@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 400" preserveAspectRatio="none">
+  <!-- a second bolt shape, more zig-zag, with a forked end -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#7A8CFF" stroke-opacity=".75" stroke-width="8">
+      <path d="M36 0L50 38 30 70 54 112 36 150 58 196 32 236 48 278 30 318 46 360 40 400"/>
+      <path d="M54 112L72 128M58 196L74 220 66 240M30 318L10 340 16 372"/>
+    </g>
+    <g stroke="#fff" stroke-width="2.2">
+      <path d="M36 0L50 38 30 70 54 112 36 150 58 196 32 236 48 278 30 318 46 360 40 400"/>
+      <path d="M54 112L72 128M58 196L74 220 66 240M30 318L10 340 16 372"/>
+    </g>
+  </g>
+</svg>

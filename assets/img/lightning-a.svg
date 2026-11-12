@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 400" preserveAspectRatio="none">
+  <!-- a jagged bolt with two branches: wide soft glow, then a thin white-hot core -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#7A8CFF" stroke-opacity=".75" stroke-width="8">
+      <path d="M40 0L28 46 48 82 30 128 52 170 34 214 56 252 38 300 50 344 36 400"/>
+      <path d="M48 82L68 104 62 132M34 214L12 236 18 266"/>
+    </g>
+    <g stroke="#fff" stroke-width="2.4">
+      <path d="M40 0L28 46 48 82 30 128 52 170 34 214 56 252 38 300 50 344 36 400"/>
+      <path d="M48 82L68 104 62 132M34 214L12 236 18 266"/>
+    </g>
+  </g>
+</svg>

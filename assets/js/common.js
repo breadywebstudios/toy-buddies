@@ -475,7 +475,7 @@
     const u = await auth.user();
     if (AREA === "admin") {
       // The admin page has its own login form; the header only shows who is signed in as admin.
-      slot.innerHTML = u ? `<button class="user-chip admin-chip" id="signOutBtn" title="Sign out of admin">\uD83D\uDD11 ${esc(u.email.split("@")[0])} \u00B7 Sign out</button>` : "";
+      slot.innerHTML = u ? `<button class="user-chip admin-chip" id="signOutBtn" title="Sign out of admin">\uD83D\uDD11 <span class="chip-name">${esc(u.email.split("@")[0])} \u00B7 </span>Sign out</button>` : "";
     } else if (u) {
       slot.innerHTML = `<button class="user-chip" id="signOutBtn" title="Sign out"><span class="nav-long">${esc(u.email.split("@")[0])} \u00B7 </span>Sign out</button>`;
     } else {

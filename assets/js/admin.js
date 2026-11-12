@@ -103,6 +103,25 @@
     ({ dash: loadDash, cats: renderCats, prods: loadProds, aucs: loadAucs, offs: loadOffs, gal: loadGal, users: loadUsers })[t]();
   }
   $$("#side button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+  // Phones: keep the chosen tab in view in the scrolling tab strip
+  $$("#side button").forEach((b) => b.addEventListener("click", () => b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" })));
+
+  // Phones show each table row as a card. Every cell gets its column name (data-label) so the card
+  // can show "Price  AED 120"; the first named column becomes the card title and photos sit beside it.
+  function labelRows(tb) {
+    const heads = [...(tb.closest("table")?.tHead?.rows[0]?.cells || [])].map((th) => th.textContent.trim());
+    for (const tr of tb.rows) {
+      let col = 0, titled = false;
+      for (const td of tr.cells) {
+        const h = td.colSpan > 1 ? "" : heads[col] || "";
+        td.dataset.label = h;
+        if (td.querySelector(".thumb")) td.classList.add("td-thumb");
+        else if (!titled && h && !td.classList.contains("actions")) { td.classList.add("td-title"); titled = true; }
+        col += td.colSpan;
+      }
+    }
+  }
+  $$(".panel tbody").forEach((tb) => { labelRows(tb); new MutationObserver(() => labelRows(tb)).observe(tb, { childList: true }); });
 
   // ---------- Dashboard ----------
   async function loadDash() {

@@ -22,8 +22,12 @@
     const it = items[i];
     el = document.createElement("figure");
     el.className = "slide"; el.dataset.i = i;
-    el.innerHTML = `<div class="slide-bg" style="background-image:url('${esc(it.url)}')"></div>
-      <img src="${esc(it.url)}" alt="${esc(it.caption || `Toy Buddies photo ${i + 1}`)}" draggable="false" decoding="async">`;
+    const no = String(i + 1).padStart(3, "0") + " / " + String(n).padStart(3, "0");
+    // a collectible trading card: foil border, logo badge, photo window, nameplate with the card number
+    el.innerHTML = `<div class="card-photo"><div class="slide-bg" style="background-image:url('${esc(it.url)}')"></div>
+        <img src="${esc(it.url)}" alt="${esc(it.caption || `Toy Buddies photo ${i + 1}`)}" draggable="false" decoding="async"></div>
+      <span class="card-badge"><img src="assets/img/logo.webp" alt="" draggable="false"></span>
+      <figcaption class="card-plate"><b>${esc(it.caption || "Toy Buddies")}</b><span>No. ${no}</span></figcaption>`;
     ring.appendChild(el); els.set(i, el);
     return el;
   }
@@ -41,8 +45,8 @@
       const z = -(a <= 1 ? a * 190 : 190 + (a - 1) * 120);            // px into the screen
       const ry = -s * Math.min(a, 1) * 42 - s * Math.max(0, a - 1) * 4;  // turn away from the middle
       const el = slideFor(i);
-      const sc = 1 + Math.max(0, 1 - a) * 0.06;                        // the main photo steps forward a little
-      el.style.transform = `translateX(${x.toFixed(2)}%) translateZ(${z.toFixed(1)}px) rotateY(${ry.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      const sc = 1 - Math.min(a, 1) * 0.06;                            // side photos a touch smaller; the main photo stays at exactly 1:1 so it's pin-sharp
+      el.style.transform = a < 0.001 ? "none" : `translateX(${x.toFixed(2)}%) translateZ(${z.toFixed(1)}px) rotateY(${ry.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
       el.style.setProperty("--a", Math.min(a, 3).toFixed(3));          // distance from the middle: dims the side photos
       el.style.zIndex = String(100 - Math.round(a * 10));
       el.style.opacity = a > r + 0.4 ? "0" : String(1 - Math.min(a, 3) * 0.1);

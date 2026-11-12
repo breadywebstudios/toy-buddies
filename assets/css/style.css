@@ -451,7 +451,7 @@ td.actions .btn{margin-right:4px}
 
 /* ===== The sailing ship: sails down the right edge as you scroll, with a wake and ripples ===== */
 .sailing-ship{
-  position:fixed; top:0; right:10px; z-index:40; width:120px; pointer-events:none;
+  position:fixed; top:0; right:10px; z-index:40; width:173px; pointer-events:none;
   transition:transform .4s cubic-bezier(.2,.7,.3,1); will-change:transform;
 }
 .sailing-ship .hull{position:relative; z-index:3; animation:ship-bob 3.2s ease-in-out infinite; transform-origin:50% 85%;
@@ -465,13 +465,13 @@ td.actions .btn{margin-right:4px}
 
 /* wake: a V-shaped trail of foam behind the ship */
 .sailing-ship .wake{
-  position:absolute; left:50%; bottom:20px; z-index:1; width:56px; height:80px; transform:translateX(-50%);
+  position:absolute; left:50%; bottom:29px; z-index:1; width:81px; height:115px; transform:translateX(-50%);
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 120' preserveAspectRatio='none'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M22 120C18 80 8 40 2 0M38 120C42 80 52 40 58 0' stroke='%23ffffff' stroke-width='3' stroke-dasharray='10 7'/%3E%3Cpath d='M22 120C18 80 8 40 2 0M38 120C42 80 52 40 58 0' stroke='%2350A0DC' stroke-width='1.2' stroke-opacity='.8' stroke-dasharray='10 7'/%3E%3Cpath d='M30 118V20' stroke='%2350A0DC' stroke-opacity='.35' stroke-width='2' stroke-dasharray='3 9'/%3E%3C/g%3E%3C/svg%3E") 0 0/100% 100% no-repeat;
   -webkit-mask:linear-gradient(0deg, #000 25%, transparent 100%); mask:linear-gradient(0deg, #000 25%, transparent 100%);
   opacity:.45; animation:wake 1.4s ease-in-out infinite; transition:opacity .3s, height .3s, width .3s;
 }
-.sailing-ship.moving .wake{opacity:1; height:120px; width:70px; animation-duration:.6s}
-.sailing-ship.up .wake{bottom:auto; top:44px; transform:translateX(-50%) scaleY(-1)}
+.sailing-ship.moving .wake{opacity:1; height:173px; width:101px; animation-duration:.6s}
+.sailing-ship.up .wake{bottom:auto; top:64px; transform:translateX(-50%) scaleY(-1)}
 .sailing-ship.up.moving .wake{transform:translateX(-50%) scaleY(-1)}
 @keyframes wake{0%,100%{filter:none} 50%{filter:brightness(1.15)}}
 @keyframes wake-flow{to{background-position:0 -17px}}
@@ -479,7 +479,7 @@ td.actions .btn{margin-right:4px}
 /* ripples spreading from the hull at the waterline */
 .sailing-ship .ripples{position:absolute; left:50%; bottom:6px; z-index:2; width:0; height:0}
 .sailing-ship .ripples b{
-  position:absolute; left:-20px; top:-6px; width:40px; height:12px; border-radius:50%;
+  position:absolute; left:-29px; top:-8px; width:58px; height:17px; border-radius:50%;
   border:2px solid rgba(80,160,220,.6); opacity:0; animation:ripple 2.4s ease-out infinite;
 }
 .sailing-ship .ripples b:nth-child(2){animation-delay:.8s}
@@ -487,7 +487,7 @@ td.actions .btn{margin-right:4px}
 @keyframes ripple{0%{transform:scale(.6); opacity:.9} 100%{transform:scale(3.2); opacity:0}}
 .sailing-ship.moving .ripples b{animation-duration:1.1s}
 
-@media (max-width:640px){ .sailing-ship{width:74px; right:4px} .sailing-ship .wake{width:28px} }
+@media (max-width:640px){ .sailing-ship{width:107px; right:4px} .sailing-ship .wake{width:41px} }
 @media (prefers-reduced-motion:reduce){
   .sailing-ship{transition:none}
   .sailing-ship .hull, .sailing-ship .wake, .sailing-ship .ripples b{animation:none}
@@ -566,7 +566,7 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 /* ===== Gallery page: 3D carousel ===== */
 .gallery-wrap{padding-top:44px; padding-bottom:64px}
 .carousel{
-  position:relative; height:clamp(380px, 60vw, 600px); margin:0 auto; overflow:hidden;
+  position:relative; height:clamp(440px, 68vw, 660px); margin:0 auto; overflow:hidden;
   perspective:1500px; perspective-origin:50% 42%; outline:none; touch-action:pan-y; user-select:none; cursor:grab;
   border-radius:28px;
 }
@@ -574,7 +574,7 @@ html{scroll-behavior:smooth; scroll-padding-top:84px}
 .carousel:focus-visible{box-shadow:0 0 0 3px var(--gold), 0 0 0 6px var(--navy)}
 .car-ring{position:absolute; inset:0; transform-style:preserve-3d}
 .slide{
-  position:absolute; left:50%; top:47%; margin:0; width:min(400px, 64vw); aspect-ratio:4 / 5; translate:-50% -50%;
+  position:absolute; left:50%; top:47%; margin:0; width:min(384px, 60vw); translate:-50% -50%;
   border-radius:22px; overflow:hidden; background:var(--navy); border:6px solid #fff;
   box-shadow:0 0 0 3px var(--navy), 0 10px 0 3px var(--navy), 0 34px 44px -22px rgba(11,22,39,.6);
   backface-visibility:hidden; will-change:transform, opacity;
@@ -651,7 +651,7 @@ main:has(> .gallery-wrap){overflow-x:clip}   /* the full-width map never adds a 
 }
 .gallery-wrap .slide:not(.is-center) img{filter:none}
 .gallery-wrap .slide.is-center{
-  border-color:var(--gold);
+  border-color:var(--gold); filter:none;   /* no filter on the main photo: keeps it crisp */
   box-shadow:0 0 0 2px var(--ink), 0 0 26px 6px rgba(254,193,66,.55), 0 34px 50px -14px rgba(30,14,4,.9);
   animation:frame-glow 2.8s ease-in-out infinite alternate;
 }
@@ -662,6 +662,35 @@ main:has(> .gallery-wrap){overflow-x:clip}   /* the full-width map never adds a 
 .gallery-wrap .slide.is-center::after{opacity:1; animation:sheen 5s ease-in-out infinite}
 @keyframes sheen{0%, 55%{translate:-120% 0} 85%, 100%{translate:120% 0}}
 .car-ring.dragging .slide{transition:opacity .3s ease, filter .3s ease}
+
+/* ----- each photo is a collectible trading card ----- */
+.gallery-wrap .slide{
+  border:0; border-radius:16px; padding:10px 10px 0; display:flex; flex-direction:column;
+  background:linear-gradient(135deg, #FFE9A8 0%, #C8922E 22%, #FFF4CC 42%, #B07A1F 62%, #FFE08A 82%, #8A5A12 100%);
+}
+.card-photo{position:relative; aspect-ratio:4 / 5; overflow:hidden; border-radius:9px; background:#1A1108;
+  box-shadow:0 0 0 2px var(--map-edge), inset 0 0 0 1px rgba(255,255,255,.25)}
+.card-photo img{position:relative; display:block; width:100%; height:100%; object-fit:contain}
+.card-badge{position:absolute; top:2px; left:2px; z-index:3; width:52px; height:52px; border-radius:50%; overflow:hidden;
+  background:#fff; border:3px solid var(--navy); box-shadow:0 3px 0 var(--navy), 0 0 0 2px #FFE9A8}
+.card-badge img{width:100%; height:100%; object-fit:cover}
+.card-plate{display:flex; align-items:center; justify-content:space-between; gap:10px; height:46px; margin:8px -10px 0; padding:0 14px;
+  border-radius:0 0 16px 16px; color:#fff;
+  background:linear-gradient(100deg, var(--navy) 0 64%, var(--orange) 64% 68%, var(--navy) 68% 72%, var(--gold) 72%)}
+.card-plate b{font-family:var(--font-display); font-weight:400; font-size:1.12rem; letter-spacing:.03em; text-transform:uppercase;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; max-width:64%}
+.card-plate span{font-weight:800; font-size:.78rem; color:var(--navy); white-space:nowrap}
+/* holographic rainbow shimmer across the middle card */
+.gallery-wrap .slide::after{border-radius:inherit}
+.gallery-wrap .slide.is-center::after{
+  background:linear-gradient(115deg, transparent 18%, rgba(255,90,170,.35) 32%, rgba(255,220,90,.35) 42%, rgba(90,255,200,.35) 52%, rgba(90,160,255,.35) 62%, transparent 78%) 0 0 / 260% 100%;
+  translate:none; mix-blend-mode:overlay; opacity:.85; animation:holo 4.5s ease-in-out infinite alternate}
+@keyframes holo{from{background-position:100% 0} to{background-position:0 0}}
+@media (max-width:640px){
+  .gallery-wrap .slide{padding:7px 7px 0; border-radius:12px}
+  .card-badge{width:40px; height:40px}   .card-plate{height:38px; margin:6px -7px 0; padding:0 10px; border-radius:0 0 12px 12px}
+  .card-plate b{font-size:.92rem} .card-plate span{font-size:.68rem}
+}
 
 /* text under the carousel, inked on the map */
 .gallery-wrap .car-caption{color:var(--ink); text-shadow:0 1px 0 rgba(255,240,210,.6)}
